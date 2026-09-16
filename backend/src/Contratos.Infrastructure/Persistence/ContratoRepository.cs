@@ -42,6 +42,12 @@ public class ContratoRepository : IContratoRepository
         await _context.SaveChangesAsync(cancellationToken);
     }
 
+    public Task<Contrato?> ObtenerParaActualizarAsync(Guid id, CancellationToken cancellationToken) =>
+        _context.Contratos.FirstOrDefaultAsync(c => c.Id == id, cancellationToken);
+
+    public Task GuardarCambiosAsync(CancellationToken cancellationToken) =>
+        _context.SaveChangesAsync(cancellationToken);
+
     public Task<Contrato?> ObtenerPorIdAsync(Guid id, CancellationToken cancellationToken) =>
         _context.Contratos
             .AsNoTracking()

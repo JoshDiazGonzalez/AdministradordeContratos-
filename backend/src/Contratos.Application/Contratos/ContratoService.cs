@@ -18,6 +18,9 @@ public interface IContratoService
     Task<ContratoDto> CrearAsync(CrearContratoRequest request, CancellationToken cancellationToken);
 
     Task<ArchivoDescargado> ObtenerArchivoAsync(Guid id, CancellationToken cancellationToken);
+
+    Task<ContratoDto> CambiarEstadoAsync(
+        Guid id, CambiarEstadoRequest request, CancellationToken cancellationToken);
 }
 
 public class ContratoService : IContratoService
@@ -126,6 +129,25 @@ public class ContratoService : IContratoService
             await _almacenamiento.EliminarAsync(ruta, CancellationToken.None);
             throw;
         }
+    }
+
+    public async Task<ContratoDto> CambiarEstadoAsync(
+        Guid id,
+        CambiarEstadoRequest request,
+        CancellationToken cancellationToken)
+    {
+        var contrato = await _repositorio.ObtenerParaActualizarAsync(id, cancellationToken)
+            ?? throw new RecursoNoEncontradoException($"No existe un contrato con id {id}.");
+
+        // Repetir la misma operacion no cambia nada ni actualiza la fecha de
+        // modificacion: la llamada es idempotente.
+        if (contrato.Inactivo != request.Inactivo)
+        {
+            contrato.CambiarInactivo(request.Inactivo, _reloj.AhoraUtc);
+            await _repositorio.GuardarCambiosAsync(cancellationToken);
+        }
+
+        return ContratoDto.Desde(contrato, _reloj.Hoy);
     }
 
     public async Task<ArchivoDescargado> ObtenerArchivoAsync(

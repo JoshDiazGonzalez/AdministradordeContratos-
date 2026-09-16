@@ -1,0 +1,207 @@
+.volver {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  margin-bottom: 0.75rem;
+  font-size: 0.875rem;
+  color: var(--color-primary-strong);
+  text-decoration: none;
+}
+
+.volver:hover {
+  text-decoration: underline;
+}
+
+.encabezado {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.75rem;
+  min-width: 0;
+}
+
+.page-title {
+  overflow-wrap: anywhere;
+}
+
+.error {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+/* ---- Rejilla principal -------------------------------------------------- */
+.rejilla {
+  display: grid;
+  gap: 1rem;
+  align-items: start;
+}
+
+.seccion {
+  min-width: 0;
+  padding: 1.25rem;
+}
+
+.seccion-titulo {
+  margin: 0 0 1rem;
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+/* ---- Datos --------------------------------------------------------------- */
+.datos {
+  display: grid;
+  gap: 0.875rem 1.5rem;
+  margin: 0 0 1.25rem;
+}
+
+.dato dt {
+  margin-bottom: 0.125rem;
+  font-size: 0.8125rem;
+  color: var(--color-text-secondary);
+}
+
+.dato dd {
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+}
+
+.monto {
+  font-size: 1.5rem;
+  font-weight: 500;
+}
+
+.subtitulo {
+  margin: 0 0 0.375rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--color-border);
+  font-size: 0.8125rem;
+  font-weight: 400;
+  color: var(--color-text-secondary);
+}
+
+/* Conserva los saltos de linea que el usuario escribio en la descripcion. */
+.descripcion {
+  margin: 0;
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+}
+
+/* ---- Documento ----------------------------------------------------------- */
+.documento {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+  color: var(--color-text-secondary);
+}
+
+.documento svg {
+  flex-shrink: 0;
+}
+
+.documento-datos {
+  display: grid;
+  min-width: 0;
+}
+
+.documento-nombre {
+  overflow: hidden;
+  color: var(--color-text-primary);
+  font-weight: 500;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.documento-meta {
+  font-size: 0.8125rem;
+}
+
+.documento-acciones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.visor-error {
+  margin: 1rem 0 0;
+}
+
+/* ---- Visor --------------------------------------------------------------- */
+.visor {
+  margin-top: 1rem;
+  overflow: hidden;
+}
+
+.visor-marco {
+  display: block;
+  width: 100%;
+  height: 75vh;
+  min-height: 24rem;
+  border: 0;
+}
+
+/* ---- Estados de carga ---------------------------------------------------- */
+.esqueleto {
+  display: grid;
+  gap: 1rem;
+  padding: 1.5rem;
+}
+
+.barra {
+  display: block;
+  height: 0.875rem;
+  border-radius: 4px;
+  background: #eceef0;
+}
+
+.titulo-barra {
+  width: 45%;
+  height: 1.5rem;
+}
+
+.corta {
+  width: 30%;
+}
+
+.vacio {
+  display: grid;
+  justify-items: center;
+  gap: 0.25rem;
+  padding: 3rem 1.5rem;
+  text-align: center;
+  color: var(--color-text-secondary);
+}
+
+.vacio-titulo {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 500;
+  color: var(--color-text-primary);
+}
+
+.vacio p {
+  margin: 0 0 1.25rem;
+}
+
+@media (min-width: 640px) {
+  .datos {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .destacado {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (min-width: 1024px) {
+  .rejilla {
+    grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
+  }
+
+  .seccion {
+    padding: 1.5rem;
+  }
+}

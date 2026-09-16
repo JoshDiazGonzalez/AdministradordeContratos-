@@ -147,7 +147,24 @@ using (var scope = app.Services.CreateScope())
     await demo.SembrarAsync();
 }
 
-// Primero en la cadena: captura cualquier excepcion de los middlewares siguientes.
+// El navegador debe respetar el Content-Type declarado y no deducirlo del
+// contenido: un archivo servido como PDF nunca debe interpretarse como HTML.
+//
+// Se aplica con OnStarting, justo antes de enviar las cabeceras. Asignarla
+// directamente no basta: el middleware de errores limpia la respuesta
+// (Response.Clear) al construir un ProblemDetails y la cabecera se perdia en
+// todas las respuestas de error.
+app.Use(async (contexto, siguiente) =>
+{
+    contexto.Response.OnStarting(() =>
+    {
+        contexto.Response.Headers.XContentTypeOptions = "nosniff";
+        return Task.CompletedTask;
+    });
+    await siguiente();
+});
+
+// Captura cualquier excepcion de los middlewares siguientes.
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 
 if (app.Environment.IsDevelopment())

@@ -1,6 +1,165 @@
-<header class="page-header">
-  <div>
-    <h1 class="page-title">Detalle del contrato</h1>
-    <p class="page-subtitle">{{ id() }}</p>
-  </div>
-</header>
+<a routerLink="/contratos" class="volver">
+  <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
+    <path d="M15 6l-6 6 6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+  </svg>
+  Volver a contratos
+</a>
+
+@switch (carga().tipo) {
+  @case ('cargando') {
+    <section class="card esqueleto" aria-busy="true">
+      <app-spinner etiqueta="Cargando contrato" />
+      <span class="barra titulo-barra" aria-hidden="true"></span>
+      <span class="barra" aria-hidden="true"></span>
+      <span class="barra corta" aria-hidden="true"></span>
+    </section>
+  }
+
+  @case ('no-encontrado') {
+    <section class="card vacio" role="status">
+      <h1 class="vacio-titulo">No se encontró el contrato</h1>
+      <p>El enlace puede estar incompleto o el contrato ya no existe.</p>
+      <a routerLink="/contratos" class="btn btn-primary">Ver todos los contratos</a>
+    </section>
+  }
+
+  @case ('error') {
+    @if (carga(); as estadoCarga) {
+      @if (estadoCarga.tipo === 'error') {
+        <div class="alert alert-error error" role="alert">
+          <span>{{ estadoCarga.mensaje }}</span>
+          <button type="button" class="btn btn-secondary" (click)="reintentar()">Reintentar</button>
+        </div>
+      }
+    }
+  }
+
+  @case ('listo') {
+    @if (contrato(); as datos) {
+      <header class="page-header">
+        <div class="encabezado">
+          <h1 class="page-title">{{ datos.nombreProveedor }}</h1>
+          <app-estado-badge [estado]="datos.estado" />
+        </div>
+
+        <button
+          type="button"
+          class="btn"
+          [class.btn-danger]="datos.estado !== 'Inactivo'"
+          [class.btn-secondary]="datos.estado === 'Inactivo'"
+          [disabled]="cambiandoEstado()"
+          (click)="cambiarEstado()"
+        >
+          @if (cambiandoEstado()) {
+            <app-spinner tamano="sm" etiqueta="Actualizando estado" />
+          }
+          {{ datos.estado === 'Inactivo' ? 'Reactivar contrato' : 'Desactivar contrato' }}
+        </button>
+      </header>
+
+      <div class="rejilla">
+        <!-- ---- Datos principales -------------------------------------------- -->
+        <section class="card seccion" aria-labelledby="titulo-datos">
+          <h2 id="titulo-datos" class="seccion-titulo">Datos del contrato</h2>
+
+          <dl class="datos">
+            <div class="dato destacado">
+              <dt>Monto</dt>
+              <dd class="monto">{{ datos.montoContrato | currency: 'USD' }}</dd>
+            </div>
+            <div class="dato">
+              <dt>Fecha de inicio</dt>
+              <dd>{{ datos.fechaInicio | fechaCorta }}</dd>
+            </div>
+            <div class="dato">
+              <dt>Fecha de vencimiento</dt>
+              <dd>{{ datos.fechaVencimiento | fechaCorta }}</dd>
+            </div>
+            <div class="dato">
+              <dt>Registrado</dt>
+              <dd>{{ datos.fechaCreacion | fechaHora }}</dd>
+            </div>
+            <div class="dato">
+              <dt>Última modificación</dt>
+              <dd>{{ datos.fechaActualizacion ? (datos.fechaActualizacion | fechaHora) : 'Sin cambios' }}</dd>
+            </div>
+          </dl>
+
+          <h3 class="subtitulo">Descripción</h3>
+          <p class="descripcion">{{ datos.descripcion }}</p>
+        </section>
+
+        <!-- ---- Documento ---------------------------------------------------- -->
+        <section class="card seccion" aria-labelledby="titulo-documento">
+          <h2 id="titulo-documento" class="seccion-titulo">Documento</h2>
+
+          <div class="documento">
+            <svg viewBox="0 0 24 24" width="32" height="32" aria-hidden="true">
+              <path d="M7 3h7l5 5v13H7zM14 3v5h5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" />
+            </svg>
+            <div class="documento-datos">
+              <span class="documento-nombre">{{ datos.archivoNombre }}</span>
+              <span class="documento-meta">{{ formato() }}, {{ tamano() }}</span>
+            </div>
+          </div>
+
+          <div class="documento-acciones">
+            @if (esPdf() && visorDisponible) {
+              @if (visor().tipo === 'abierto') {
+                <button type="button" class="btn btn-secondary" (click)="cerrarVisor()">
+                  Cerrar vista previa
+                </button>
+              } @else {
+                <button
+                  type="button"
+                  class="btn btn-secondary"
+                  [disabled]="visor().tipo === 'cargando'"
+                  (click)="verDocumento()"
+                >
+                  @if (visor().tipo === 'cargando') {
+                    <app-spinner tamano="sm" etiqueta="Abriendo documento" />
+                  }
+                  Ver documento
+                </button>
+              }
+            }
+
+            <button type="button" class="btn btn-primary" [disabled]="descargando()" (click)="descargar()">
+              @if (descargando()) {
+                <app-spinner tamano="sm" etiqueta="Descargando documento" />
+                <span aria-hidden="true">Descargando</span>
+              } @else {
+                <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+                  <path d="M12 4v11M7 10l5 5 5-5M5 20h14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+                Descargar
+              }
+            </button>
+          </div>
+
+          @if (esPdf() && !visorDisponible) {
+            <p class="field-hint">Este navegador no muestra PDF dentro de la página: descárguelo para verlo.</p>
+          }
+
+          @if (visor(); as estadoVisor) {
+            @if (estadoVisor.tipo === 'error') {
+              <p class="alert alert-error visor-error" role="alert">{{ estadoVisor.mensaje }}</p>
+            }
+          }
+        </section>
+      </div>
+
+      @if (visor(); as estadoVisor) {
+        @if (estadoVisor.tipo === 'abierto') {
+          <section class="card visor" aria-label="Vista previa del documento">
+            <iframe
+              class="visor-marco"
+              [src]="estadoVisor.url"
+              [title]="'Vista previa de ' + datos.archivoNombre"
+            ></iframe>
+          </section>
+        }
+      }
+    }
+  }
+}

@@ -91,12 +91,37 @@ public class ContratosController : ControllerBase
     {
         var archivo = await _contratos.ObtenerArchivoAsync(id, cancellationToken);
 
+        // Documentos confidenciales: ni el navegador ni un proxy intermedio deben
+        // guardar una copia que quede accesible despues de cerrar la sesion.
+        Response.Headers.CacheControl = "no-store";
+
         // Con download=false el navegador puede mostrar el PDF en linea.
         // El nombre se pasa a File() para que ASP.NET lo codifique de forma segura
         // en la cabecera Content-Disposition.
         return download
             ? File(archivo.Contenido, archivo.ContentType, archivo.NombreArchivo)
             : File(archivo.Contenido, archivo.ContentType);
+    }
+
+    /// <summary>
+    /// Activa o desactiva un contrato por decision de negocio.
+    /// </summary>
+    /// <remarks>
+    /// Solo cambia la bandera de inactividad. Activo, Por vencer y Vencido se
+    /// calculan con las fechas y no se pueden fijar desde aqui.
+    /// </remarks>
+    [HttpPatch("{id:guid}/estado")]
+    [ProducesResponseType<ContratoDto>(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<ContratoDto>> CambiarEstado(
+        Guid id,
+        [FromBody] CambiarEstadoRequest request,
+        CancellationToken cancellationToken)
+    {
+        var contrato = await _contratos.CambiarEstadoAsync(id, request, cancellationToken);
+        return Ok(contrato);
     }
 
     /// <summary>Obtiene un contrato por su identificador.</summary>

@@ -135,6 +135,15 @@ describe('ContratosService', () => {
     });
   });
 
+  it('cambiarEstado envia solo la bandera de inactividad', () => {
+    servicio.cambiarEstado('123', true).subscribe();
+
+    const peticion = http.expectOne(`${API}/contratos/123/estado`);
+    expect(peticion.request.method).toBe('PATCH');
+    expect(peticion.request.body).toEqual({ inactivo: true });
+    peticion.flush(contratoDePrueba());
+  });
+
   describe('descargarArchivo', () => {
     it('pide el documento como blob para verlo en linea por defecto', () => {
       servicio.descargarArchivo('123').subscribe();

@@ -52,6 +52,14 @@ export class ContratosService {
   }
 
   /**
+   * Activa o desactiva un contrato. Devuelve el contrato con el estado ya
+   * recalculado por la API: al reactivar puede quedar Vencido, no Activo.
+   */
+  cambiarEstado(id: string, inactivo: boolean): Observable<Contrato> {
+    return this.http.patch<Contrato>(`${this.baseUrl}/${encodeURIComponent(id)}/estado`, { inactivo });
+  }
+
+  /**
    * Descarga el documento como Blob.
    *
    * No se usa un enlace directo (<a href>) porque el endpoint exige JWT y el

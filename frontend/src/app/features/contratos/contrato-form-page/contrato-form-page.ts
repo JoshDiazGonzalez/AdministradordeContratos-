@@ -232,7 +232,10 @@ export class ContratoFormPage implements ConCambiosSinGuardar {
         next: (contrato) => {
           this.guardado = true;
           this.notificaciones.exito(`Contrato de ${contrato.nombreProveedor} registrado.`);
-          void this.router.navigate(['/contratos']);
+          // Se abre el contrato recien creado: el usuario comprueba lo que guardo,
+          // su estado calculado y el documento adjunto. replaceUrl evita que el
+          // boton atras vuelva a un formulario ya enviado.
+          void this.router.navigate(['/contratos', contrato.id], { replaceUrl: true });
         },
         error: (error: unknown) => this.mostrarErrorDelServidor(error),
       });

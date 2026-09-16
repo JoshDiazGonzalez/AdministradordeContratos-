@@ -186,18 +186,18 @@ describe('ContratoFormPage', () => {
       expect(boton.textContent).toContain('Guardando');
     });
 
-    it('al terminar avisa del exito y vuelve al listado', async () => {
+    it('al terminar avisa del exito y abre el contrato creado', async () => {
       await rellenarValido();
       await enviar();
 
-      respuesta.next({ nombreProveedor: 'Proveedor Alpha' } as Contrato);
+      respuesta.next({ id: 'nuevo-id', nombreProveedor: 'Proveedor Alpha' } as Contrato);
       respuesta.complete();
       await fixture.whenStable();
 
       expect(TestBed.inject(NotificacionesService).notificaciones()[0].mensaje).toBe(
         'Contrato de Proveedor Alpha registrado.',
       );
-      expect(navegar).toHaveBeenCalledWith(['/contratos']);
+      expect(navegar).toHaveBeenCalledWith(['/contratos', 'nuevo-id'], { replaceUrl: true });
       // Tras guardar, salir no debe pedir confirmacion.
       expect(fixture.componentInstance.tieneCambiosSinGuardar()).toBe(false);
     });
