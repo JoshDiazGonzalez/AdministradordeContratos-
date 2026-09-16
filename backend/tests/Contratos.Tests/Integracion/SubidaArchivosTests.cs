@@ -234,6 +234,63 @@ public class SubidaArchivosTests : IClassFixture<ApiFactory>
     }
 
     [Fact]
+    public async Task Con_varios_campos_invalidos_devuelve_todos_los_errores_juntos_y_en_espanol()
+    {
+        // Regresion: la validacion implicita de ASP.NET cortaba el proceso en los
+        // campos vacios y respondia en ingles, ocultando el resto de errores.
+        var cliente = await _factory.CrearClienteAutenticadoAsync();
+
+        var respuesta = await cliente.PostAsync("/api/contratos", Formulario(
+            proveedor: "",
+            monto: "0",
+            fechaInicio: "2026-12-31",
+            fechaVencimiento: "2026-01-01"));
+
+        Assert.Equal(HttpStatusCode.BadRequest, respuesta.StatusCode);
+
+        using var json = JsonDocument.Parse(await respuesta.Content.ReadAsStringAsync());
+        var errores = json.RootElement.GetProperty("errors");
+        var campos = errores.EnumerateObject().Select(p => p.Name).ToHashSet(StringComparer.Ordinal);
+
+        Assert.Contains("NombreProveedor", campos);
+        Assert.Contains("MontoContrato", campos);
+        Assert.Contains("FechaVencimiento", campos);
+
+        var mensajes = errores.EnumerateObject()
+            .SelectMany(p => p.Value.EnumerateArray().Select(m => m.GetString() ?? string.Empty))
+            .ToList();
+        Assert.DoesNotContain(mensajes, m => m.Contains("field is required", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public async Task Los_errores_del_archivo_usan_la_misma_convencion_de_nombres_que_el_resto()
+    {
+        var cliente = await _factory.CrearClienteAutenticadoAsync();
+
+        var respuesta = await cliente.PostAsync("/api/contratos",
+            Formulario(contenido: [0x4D, 0x5A, 0x90, 0x00, 0x03, 0x00]));
+
+        using var json = JsonDocument.Parse(await respuesta.Content.ReadAsStringAsync());
+        Assert.True(json.RootElement.GetProperty("errors").TryGetProperty("Archivo", out _));
+    }
+
+    [Fact]
+    public async Task Un_cuerpo_que_supera_el_limite_devuelve_413_con_mensaje_en_espanol()
+    {
+        var cliente = await _factory.CrearClienteAutenticadoAsync();
+        var grande = new byte[13 * 1024 * 1024];
+        "%PDF-1.7"u8.CopyTo(grande);
+
+        var respuesta = await cliente.PostAsync("/api/contratos", Formulario(contenido: grande));
+
+        Assert.Equal(HttpStatusCode.RequestEntityTooLarge, respuesta.StatusCode);
+        Assert.Equal("application/problem+json", respuesta.Content.Headers.ContentType?.MediaType);
+
+        using var json = JsonDocument.Parse(await respuesta.Content.ReadAsStringAsync());
+        Assert.Contains("10 MB", json.RootElement.GetProperty("detail").GetString(), StringComparison.Ordinal);
+    }
+
+    [Fact]
     public async Task Un_contrato_rechazado_no_se_persiste()
     {
         var cliente = await _factory.CrearClienteAutenticadoAsync();

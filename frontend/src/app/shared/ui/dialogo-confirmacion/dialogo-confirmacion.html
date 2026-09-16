@@ -1,0 +1,30 @@
+<dialog
+  #dialogo
+  class="dialogo"
+  aria-labelledby="dialogo-titulo"
+  aria-describedby="dialogo-mensaje"
+  (cancel)="alCancelar($event)"
+  (click)="alPulsarFondo($event)"
+>
+  @if (servicio.solicitud(); as solicitud) {
+    <div class="contenido">
+      <h2 id="dialogo-titulo" class="titulo">{{ solicitud.titulo }}</h2>
+      <p id="dialogo-mensaje" class="mensaje">{{ solicitud.mensaje }}</p>
+
+      <div class="acciones">
+        <button #cancelar type="button" class="btn btn-secondary" (click)="responder(false)">
+          {{ solicitud.cancelar ?? 'Cancelar' }}
+        </button>
+        <button
+          type="button"
+          class="btn"
+          [class.btn-primary]="!solicitud.peligroso"
+          [class.btn-peligro]="solicitud.peligroso"
+          (click)="responder(true)"
+        >
+          {{ solicitud.confirmar }}
+        </button>
+      </div>
+    </div>
+  }
+</dialog>

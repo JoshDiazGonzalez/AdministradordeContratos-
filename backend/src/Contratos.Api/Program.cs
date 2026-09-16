@@ -23,6 +23,12 @@ builder.Configuration.AddEnvironmentVariables();
 
 builder.Services.AddControllers(options =>
     {
+        // Sin esto ASP.NET marca como obligatorio todo string no anulable y
+        // responde "The X field is required." en ingles, deteniendo el proceso
+        // antes de FluentValidation: el usuario veria solo parte de los errores.
+        // La obligatoriedad la decide la capa de aplicacion, con mensajes propios.
+        options.SuppressImplicitRequiredAttributeForNonNullableReferenceTypes = true;
+
         // Mensajes de conversion de parametros (?fechaInicioDesde=no-es-fecha) en
         // espanol. Sin esto ASP.NET responde en ingles y el cliente recibe errores
         // en dos idiomas segun que capa los detecte.
@@ -41,11 +47,13 @@ builder.Services.AddControllers(options =>
         // Mismo formato y titulo que los errores del middleware.
         options.InvalidModelStateResponseFactory = contexto =>
         {
+            var instancia = $"{contexto.HttpContext.Request.Method} {contexto.HttpContext.Request.Path}";
+
             var problema = new Microsoft.AspNetCore.Mvc.ValidationProblemDetails(contexto.ModelState)
             {
                 Status = StatusCodes.Status400BadRequest,
                 Title = "Error de validacion",
-                Instance = $"{contexto.HttpContext.Request.Method} {contexto.HttpContext.Request.Path}",
+                Instance = instancia,
             };
 
             return new Microsoft.AspNetCore.Mvc.BadRequestObjectResult(problema)

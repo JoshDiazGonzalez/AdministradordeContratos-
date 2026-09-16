@@ -11,7 +11,7 @@ public class LoginRequestValidator : AbstractValidator<LoginRequest>
             .MaximumLength(50).WithMessage("El usuario no puede superar los 50 caracteres.");
 
         RuleFor(x => x.Password)
-            .NotEmpty().WithMessage("La contrasena es obligatoria.")
-            .MaximumLength(128).WithMessage("La contrasena no puede superar los 128 caracteres.");
+            .NotEmpty().WithMessage("La contraseña es obligatoria.")
+            .MaximumLength(128).WithMessage("La contraseña no puede superar los 128 caracteres.");
     }
 }

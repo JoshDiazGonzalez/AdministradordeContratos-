@@ -4,7 +4,7 @@ namespace Contratos.Application.Common;
 public class CredencialesInvalidasException : Exception
 {
     public CredencialesInvalidasException()
-        : base("Usuario o contrasena incorrectos.")
+        : base("Usuario o contraseña incorrectos.")
     {
     }
 }
@@ -22,7 +22,7 @@ public class RecursoNoEncontradoException : Exception
 public class ValidacionException : Exception
 {
     public ValidacionException(IDictionary<string, string[]> errores)
-        : base("Se encontraron errores de validacion.")
+        : base("Se encontraron errores de validación.")
     {
         Errores = errores;
     }

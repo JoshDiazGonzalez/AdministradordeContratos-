@@ -1,3 +1,4 @@
+using Contratos.Api.Filters;
 using Contratos.Application.Common;
 using Contratos.Application.Contratos;
 using Contratos.Application.Storage;
@@ -54,6 +55,8 @@ public class ContratosController : ControllerBase
     [HttpPost]
     [Consumes("multipart/form-data")]
     [RequestSizeLimit(TamanoMaximoPeticion)]
+    [LimitarTamanoPeticion(TamanoMaximoPeticion, "El documento supera el tamaño máximo permitido de 10 MB.")]
+    [ProducesResponseType(StatusCodes.Status413PayloadTooLarge)]
     [ProducesResponseType<ContratoDto>(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]

@@ -1,6 +1,208 @@
+<a routerLink="/contratos" class="volver">
+  <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
+    <path d="M15 6l-6 6 6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+  </svg>
+  Volver a contratos
+</a>
+
 <header class="page-header">
   <div>
     <h1 class="page-title">Nuevo contrato</h1>
-    <p class="page-subtitle">Registre un contrato y adjunte su documento.</p>
+    <p class="page-subtitle">Registre un contrato y adjunte su documento. Todos los campos son obligatorios.</p>
   </div>
 </header>
+
+<form class="card formulario" [formGroup]="formulario" (ngSubmit)="guardar()" novalidate>
+  @if (errorGeneral(); as mensaje) {
+    <p class="alert alert-error" role="alert">{{ mensaje }}</p>
+  }
+
+  <!-- ---- Proveedor y monto ---------------------------------------------- -->
+  <fieldset class="seccion">
+    <legend class="seccion-titulo">Datos del contrato</legend>
+
+    <div class="rejilla">
+      <div class="campo ancho">
+        <label class="label" for="contrato-nombreProveedor">Nombre del proveedor</label>
+        <input
+          id="contrato-nombreProveedor"
+          class="input"
+          type="text"
+          formControlName="nombreProveedor"
+          maxlength="200"
+          autocomplete="organization"
+          [attr.aria-invalid]="invalido('nombreProveedor')"
+          [attr.aria-describedby]="invalido('nombreProveedor') ? 'contrato-nombreProveedor-error' : null"
+        />
+        @if (error('nombreProveedor'); as mensaje) {
+          <p id="contrato-nombreProveedor-error" class="field-error">{{ mensaje }}</p>
+        }
+      </div>
+
+      <div class="campo">
+        <label class="label" for="contrato-monto">Monto del contrato (USD)</label>
+        <div class="con-prefijo">
+          <span class="prefijo" aria-hidden="true">$</span>
+          <input
+            id="contrato-monto"
+            class="input"
+            type="text"
+            inputmode="decimal"
+            formControlName="monto"
+            placeholder="0.00"
+            autocomplete="off"
+            (blur)="formatearMontoEscrito()"
+            [attr.aria-invalid]="invalido('monto')"
+            [attr.aria-describedby]="invalido('monto') ? 'contrato-monto-error' : 'contrato-monto-ayuda'"
+          />
+        </div>
+        @if (error('monto'); as mensaje) {
+          <p id="contrato-monto-error" class="field-error">{{ mensaje }}</p>
+        } @else {
+          <p id="contrato-monto-ayuda" class="field-hint">Use punto para los decimales. Ej.: 12,500.00</p>
+        }
+      </div>
+    </div>
+  </fieldset>
+
+  <!-- ---- Vigencia -------------------------------------------------------- -->
+  <fieldset class="seccion">
+    <legend class="seccion-titulo">Vigencia</legend>
+
+    <div class="rejilla">
+      <div class="campo">
+        <label class="label" for="contrato-fechaInicio">Fecha de inicio</label>
+        <input
+          id="contrato-fechaInicio"
+          class="input"
+          type="date"
+          formControlName="fechaInicio"
+          [max]="formulario.controls.fechaVencimiento.value || null"
+          [attr.aria-invalid]="invalido('fechaInicio')"
+          [attr.aria-describedby]="invalido('fechaInicio') ? 'contrato-fechaInicio-error' : null"
+        />
+        @if (error('fechaInicio'); as mensaje) {
+          <p id="contrato-fechaInicio-error" class="field-error">{{ mensaje }}</p>
+        }
+      </div>
+
+      <div class="campo">
+        <label class="label" for="contrato-fechaVencimiento">Fecha de vencimiento</label>
+        <input
+          id="contrato-fechaVencimiento"
+          class="input"
+          type="date"
+          formControlName="fechaVencimiento"
+          [min]="formulario.controls.fechaInicio.value || null"
+          [attr.aria-invalid]="invalido('fechaVencimiento')"
+          [attr.aria-describedby]="invalido('fechaVencimiento') ? 'contrato-fechaVencimiento-error' : 'contrato-vigencia-ayuda'"
+        />
+        @if (error('fechaVencimiento'); as mensaje) {
+          <p id="contrato-fechaVencimiento-error" class="field-error">{{ mensaje }}</p>
+        } @else {
+          <p id="contrato-vigencia-ayuda" class="field-hint">El estado se calcula a partir de esta fecha.</p>
+        }
+      </div>
+    </div>
+  </fieldset>
+
+  <!-- ---- Descripcion ----------------------------------------------------- -->
+  <fieldset class="seccion">
+    <legend class="seccion-titulo">Descripción</legend>
+
+    <div class="campo">
+      <label class="label" for="contrato-descripcion">Objeto del contrato</label>
+      <textarea
+        id="contrato-descripcion"
+        class="input area"
+        rows="4"
+        formControlName="descripcion"
+        [attr.maxlength]="longitudMaximaDescripcion"
+        [attr.aria-invalid]="invalido('descripcion')"
+        [attr.aria-describedby]="
+          invalido('descripcion')
+            ? 'contrato-descripcion-error contrato-descripcion-contador'
+            : 'contrato-descripcion-contador'
+        "
+      ></textarea>
+      <div class="pie-campo">
+        @if (error('descripcion'); as mensaje) {
+          <p id="contrato-descripcion-error" class="field-error">{{ mensaje }}</p>
+        } @else {
+          <span></span>
+        }
+        <span
+          id="contrato-descripcion-contador"
+          class="contador"
+          [class.cerca]="caracteresDescripcion() > longitudMaximaDescripcion * 0.9"
+        >
+          {{ caracteresDescripcion() }} / {{ longitudMaximaDescripcion }}
+        </span>
+      </div>
+    </div>
+  </fieldset>
+
+  <!-- ---- Documento ------------------------------------------------------- -->
+  <fieldset class="seccion">
+    <legend class="seccion-titulo">Documento</legend>
+
+    @if (archivo(); as documento) {
+      <div class="archivo-elegido" [class.con-error]="invalido('archivo')">
+        <svg viewBox="0 0 24 24" width="28" height="28" aria-hidden="true">
+          <path d="M7 3h7l5 5v13H7zM14 3v5h5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" />
+        </svg>
+        <div class="archivo-datos">
+          <span class="archivo-nombre">{{ documento.name }}</span>
+          <span class="archivo-tamano">{{ tamanoArchivo() }}</span>
+        </div>
+        <button type="button" class="btn btn-secondary quitar" (click)="quitarArchivo()">
+          Quitar<span class="sr-only"> {{ documento.name }}</span>
+        </button>
+      </div>
+    } @else {
+      <div
+        class="zona"
+        [class.arrastrando]="arrastrando()"
+        [class.con-error]="invalido('archivo')"
+        (dragover)="alArrastrarSobre($event)"
+        (dragleave)="alSalirArrastre()"
+        (drop)="alSoltar($event)"
+      >
+        <svg viewBox="0 0 24 24" width="32" height="32" aria-hidden="true">
+          <path d="M12 16V4M7 9l5-5 5 5M5 20h14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+        <p class="zona-texto">
+          <label for="contrato-archivo" class="zona-enlace">Seleccione un archivo</label>
+          o arrástrelo aquí
+        </p>
+        <p class="field-hint">PDF, DOC o DOCX. Máximo 10 MB.</p>
+        <input
+          id="contrato-archivo"
+          class="entrada-archivo"
+          type="file"
+          [accept]="extensiones"
+          (change)="alElegirArchivo($event)"
+          [attr.aria-invalid]="invalido('archivo')"
+          [attr.aria-describedby]="invalido('archivo') ? 'contrato-archivo-error' : null"
+        />
+      </div>
+    }
+
+    @if (error('archivo'); as mensaje) {
+      <p id="contrato-archivo-error" class="field-error">{{ mensaje }}</p>
+    }
+  </fieldset>
+
+  <!-- ---- Acciones -------------------------------------------------------- -->
+  <div class="acciones">
+    <a routerLink="/contratos" class="btn btn-secondary">Cancelar</a>
+    <button type="submit" class="btn btn-primary" [disabled]="enviando()">
+      @if (enviando()) {
+        <app-spinner tamano="sm" etiqueta="Guardando contrato" />
+        <span aria-hidden="true">Guardando</span>
+      } @else {
+        Guardar contrato
+      }
+    </button>
+  </div>
+</form>

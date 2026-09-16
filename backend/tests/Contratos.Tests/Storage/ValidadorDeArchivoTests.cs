@@ -60,7 +60,7 @@ public class ValidadorDeArchivoTests
     {
         var errores = await ErroresDe(null);
 
-        Assert.Contains("archivo", errores.Keys);
+        Assert.Contains(ValidadorDeArchivo.CampoArchivo, errores.Keys);
     }
 
     [Fact]
@@ -68,7 +68,7 @@ public class ValidadorDeArchivoTests
     {
         var errores = await ErroresDe(Archivo("contrato.pdf", "application/pdf", []));
 
-        Assert.Contains("archivo", errores.Keys);
+        Assert.Contains(ValidadorDeArchivo.CampoArchivo, errores.Keys);
     }
 
     [Theory]
@@ -80,7 +80,7 @@ public class ValidadorDeArchivoTests
     {
         var errores = await ErroresDe(Archivo(nombre, contentType, CabeceraPdf));
 
-        Assert.Contains("archivo", errores.Keys);
+        Assert.Contains(ValidadorDeArchivo.CampoArchivo, errores.Keys);
     }
 
     [Fact]
@@ -92,8 +92,8 @@ public class ValidadorDeArchivoTests
 
         var errores = await ErroresDe(Archivo("contrato.pdf", "application/pdf", ejecutable));
 
-        Assert.Contains("archivo", errores.Keys);
-        Assert.Contains("contenido", string.Join(' ', errores["archivo"]),
+        Assert.Contains(ValidadorDeArchivo.CampoArchivo, errores.Keys);
+        Assert.Contains("contenido", string.Join(' ', errores[ValidadorDeArchivo.CampoArchivo]),
             StringComparison.OrdinalIgnoreCase);
     }
 
@@ -102,7 +102,7 @@ public class ValidadorDeArchivoTests
     {
         var errores = await ErroresDe(Archivo("contrato.pdf", "image/png", CabeceraPdf));
 
-        Assert.Contains("archivo", errores.Keys);
+        Assert.Contains(ValidadorDeArchivo.CampoArchivo, errores.Keys);
     }
 
     [Fact]
@@ -112,8 +112,8 @@ public class ValidadorDeArchivoTests
         var errores = await ErroresDe(
             Archivo("contrato.pdf", "application/pdf", CabeceraPdf, tamano: 11 * 1024 * 1024));
 
-        Assert.Contains("archivo", errores.Keys);
-        Assert.Contains("MB", string.Join(' ', errores["archivo"]), StringComparison.Ordinal);
+        Assert.Contains(ValidadorDeArchivo.CampoArchivo, errores.Keys);
+        Assert.Contains("MB", string.Join(' ', errores[ValidadorDeArchivo.CampoArchivo]), StringComparison.Ordinal);
     }
 
     [Fact]

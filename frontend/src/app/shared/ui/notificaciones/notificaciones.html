@@ -1,0 +1,40 @@
+<!--
+  Las regiones aria-live existen siempre, aunque esten vacias: un lector de
+  pantalla solo anuncia cambios en regiones que ya estaban en la pagina.
+  Exito se anuncia con cortesia; error interrumpe.
+-->
+<div class="pila">
+  <div aria-live="polite" class="region">
+    @for (aviso of servicio.notificaciones(); track aviso.id) {
+      @if (aviso.tipo === 'exito') {
+        <div class="aviso exito">
+          <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+            <path d="M5 12l5 5 9-10" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
+          <p class="texto">{{ aviso.mensaje }}</p>
+          <button type="button" class="cerrar" (click)="servicio.cerrar(aviso.id)">
+            <span aria-hidden="true">×</span>
+            <span class="sr-only">Cerrar aviso</span>
+          </button>
+        </div>
+      }
+    }
+  </div>
+
+  <div aria-live="assertive" class="region">
+    @for (aviso of servicio.notificaciones(); track aviso.id) {
+      @if (aviso.tipo === 'error') {
+        <div class="aviso error">
+          <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+            <path d="M12 8v5M12 16.5v.5M12 3l10 18H2z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
+          <p class="texto">{{ aviso.mensaje }}</p>
+          <button type="button" class="cerrar" (click)="servicio.cerrar(aviso.id)">
+            <span aria-hidden="true">×</span>
+            <span class="sr-only">Cerrar aviso</span>
+          </button>
+        </div>
+      }
+    }
+  </div>
+</div>

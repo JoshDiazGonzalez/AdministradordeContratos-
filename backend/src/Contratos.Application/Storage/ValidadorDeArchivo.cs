@@ -9,6 +9,12 @@ namespace Contratos.Application.Storage;
 /// </summary>
 public class ValidadorDeArchivo
 {
+    /// <summary>
+    /// Clave del campo en los errores de validacion. Coincide con el nombre de la
+    /// propiedad del formulario (Archivo), igual que el resto de campos.
+    /// </summary>
+    public const string CampoArchivo = "Archivo";
+
     private readonly StorageOptions _opciones;
 
     public ValidadorDeArchivo(StorageOptions opciones) => _opciones = opciones;
@@ -43,14 +49,14 @@ public class ValidadorDeArchivo
 
         if (archivo is null || archivo.TamanoBytes == 0)
         {
-            errores["archivo"] = ["Debe seleccionar un documento."];
+            errores[CampoArchivo] = ["Debe seleccionar un documento."];
             throw new ValidacionException(errores);
         }
 
         if (archivo.TamanoBytes > _opciones.MaxFileSizeBytes)
         {
             var maximoMb = _opciones.MaxFileSizeBytes / 1024d / 1024d;
-            errores["archivo"] = [$"El documento no puede superar {maximoMb:0.#} MB."];
+            errores[CampoArchivo] = [$"El documento no puede superar {maximoMb:0.#} MB."];
         }
 
         var extension = Path.GetExtension(archivo.NombreOriginal).ToLowerInvariant();
@@ -58,21 +64,21 @@ public class ValidadorDeArchivo
         if (!_opciones.AllowedExtensions.Contains(extension))
         {
             var permitidas = string.Join(", ", _opciones.AllowedExtensions);
-            errores["archivo"] = [$"Solo se aceptan documentos {permitidas}."];
+            errores[CampoArchivo] = [$"Solo se aceptan documentos {permitidas}."];
             throw new ValidacionException(errores);
         }
 
         if (ContentTypesPorExtension.TryGetValue(extension, out var esperados)
             && !esperados.Contains(archivo.ContentType, StringComparer.OrdinalIgnoreCase))
         {
-            errores["archivo"] =
+            errores[CampoArchivo] =
                 [$"El tipo de contenido no corresponde a un archivo {extension}."];
         }
 
         if (!await FirmaCoincideAsync(archivo, extension, cancellationToken))
         {
-            errores["archivo"] =
-                [$"El contenido del archivo no corresponde a un documento {extension} valido."];
+            errores[CampoArchivo] =
+                [$"El contenido del archivo no corresponde a un documento {extension} válido."];
         }
 
         if (errores.Count > 0)

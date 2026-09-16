@@ -14,7 +14,7 @@ public class CrearContratoRequestValidator : AbstractValidator<CrearContratoRequ
         RuleFor(x => x.MontoContrato)
             .GreaterThan(0).WithMessage("El monto debe ser mayor que 0.")
             .LessThanOrEqualTo(9_999_999_999_999_999.99m)
-            .WithMessage("El monto excede el maximo admitido.");
+            .WithMessage("El monto excede el máximo admitido.");
 
         RuleFor(x => x.FechaInicio)
             .NotEqual(default(DateOnly)).WithMessage("La fecha de inicio es obligatoria.");
@@ -25,8 +25,8 @@ public class CrearContratoRequestValidator : AbstractValidator<CrearContratoRequ
             .WithMessage("La fecha de vencimiento no puede ser anterior a la fecha de inicio.");
 
         RuleFor(x => x.Descripcion)
-            .NotEmpty().WithMessage("La descripcion es obligatoria.")
+            .NotEmpty().WithMessage("La descripción es obligatoria.")
             .MaximumLength(1000)
-            .WithMessage("La descripcion no puede superar los 1000 caracteres.");
+            .WithMessage("La descripción no puede superar los 1000 caracteres.");
     }
 }

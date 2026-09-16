@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 
 import { authGuard, invitadoGuard } from './core/guards/auth.guard';
+import { cambiosSinGuardarGuard } from './core/guards/cambios-sin-guardar.guard';
 
 const TITULO_APP = 'Administración de Contratos';
 
@@ -47,6 +48,7 @@ export const routes: Routes = [
         // y ':id' capturaria tambien el segmento literal "nuevo".
         path: 'contratos/nuevo',
         title: `Nuevo contrato | ${TITULO_APP}`,
+        canDeactivate: [cambiosSinGuardarGuard],
         loadComponent: () =>
           import('./features/contratos/contrato-form-page/contrato-form-page').then(
             (m) => m.ContratoFormPage,

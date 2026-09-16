@@ -1,0 +1,55 @@
+.dialogo {
+  width: min(28rem, calc(100vw - 2rem));
+  padding: 0;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-card);
+  background: var(--color-surface);
+  color: var(--color-text-primary);
+  box-shadow: 0 10px 30px rgb(0 0 0 / 0.15);
+}
+
+.dialogo::backdrop {
+  background: rgb(17 24 39 / 0.45);
+}
+
+.contenido {
+  padding: 1.5rem;
+}
+
+.titulo {
+  margin: 0 0 0.5rem;
+  font-size: 1.125rem;
+  font-weight: 500;
+}
+
+.mensaje {
+  margin: 0 0 1.5rem;
+  color: var(--color-text-secondary);
+}
+
+.acciones {
+  display: flex;
+  flex-wrap: wrap-reverse;
+  justify-content: flex-end;
+  gap: 0.75rem;
+}
+
+/*
+ * Accion destructiva confirmada: rojo solido. Se distingue de .btn-danger
+ * (contorno), que se usa para iniciar la accion, no para confirmarla.
+ * Blanco sobre #b91c1c da 6.47:1.
+ */
+.btn-peligro {
+  background: var(--color-danger-strong);
+  color: #ffffff;
+}
+
+.btn-peligro:hover {
+  background: #991b1b;
+}
+
+@media (max-width: 479px) {
+  .acciones .btn {
+    flex: 1 1 100%;
+  }
+}
