@@ -2,7 +2,6 @@
 .env
 .env.local
 *.env
-!.env.example
 appsettings.Production.json
 appsettings.*.local.json
 
@@ -52,11 +51,16 @@ Desktop.ini
 backend/src/Contratos.Api/storage/
 uploads/
 
-# ---- Agent skills instaladas con `npx skills` ----
-# Son dependencias de herramientas de desarrollo, no parte del entregable.
-# Se restauran con: npx skills install   (a partir de skills-lock.json)
+# ---- Herramientas locales (no forman parte del entregable) ----
+# Configuracion de agentes, MCP, skills, scripts auxiliares y plantilla de .env:
+# existen solo en la maquina de desarrollo.
 .agents/
-.claude/skills/
+.claude/
+.mcp.json
+skills-lock.json
+scripts/
+global.json
+.env.example
 
 # Base local de desarrollo (SQLite)
 *.db

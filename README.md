@@ -23,12 +23,35 @@ El usuario se crea automáticamente al primer arranque con los valores `Seed__Ad
 ```bash
 git clone https://github.com/JoshDiazGonzalez/AdministradordeContratos-.git
 cd AdministradordeContratos-
-cp .env.example .env
 ```
 
-Con los valores por defecto la aplicación funciona sin más cambios en desarrollo: si `ConnectionStrings__DefaultConnection` está vacío se usa una base SQLite local y los documentos se guardan en disco. Se cargan contratos de ejemplo con los cuatro estados (`Seed__DatosDemo=true`).
+Crear un archivo `.env` en la raíz del proyecto con este contenido:
 
-Para usar Supabase, completar en `.env` la cadena del *session pooler* (`ConnectionStrings__DefaultConnection`) y, para guardar los documentos en Supabase Storage, `Storage__Provider=Supabase`, `Supabase__Url` y `Supabase__ServiceRoleKey`. Cada variable está explicada en `.env.example`. El archivo `.env` nunca se sube al repositorio.
+```dotenv
+# Usuario de prueba y contratos de ejemplo
+Seed__AdminUsername=admin
+Seed__AdminPassword=admin123
+Seed__DatosDemo=true
+
+# Solo para Docker (opción B)
+Jwt__Secret=
+POSTGRES_PASSWORD=
+```
+
+Con eso la aplicación funciona en desarrollo sin más cambios: al no haber cadena de conexión se usa una base SQLite local, los documentos se guardan en disco y el secreto JWT se genera al arrancar. Se cargan contratos de ejemplo con los cuatro estados.
+
+Para usar Supabase, añadir al `.env`:
+
+| Variable | Valor |
+| --- | --- |
+| `ConnectionStrings__DefaultConnection` | Cadena del *session pooler* de Supabase (`Host=aws-0-<region>.pooler.supabase.com;Port=5432;Database=postgres;Username=postgres.<project_ref>;Password=<password>;SSL Mode=Require`) |
+| `Jwt__Secret` | Al menos 32 caracteres aleatorios |
+| `Storage__Provider` | `Supabase` para guardar los documentos en Supabase Storage (por defecto `Local`) |
+| `Supabase__Url` | `https://<project_ref>.supabase.co` |
+| `Supabase__ServiceRoleKey` | Clave *service_role* del proyecto |
+| `Supabase__StorageBucket` | Bucket privado de documentos (por defecto `contracts`) |
+
+El archivo `.env` contiene secretos y nunca se sube al repositorio.
 
 ### 2. Opción A: backend y frontend por separado
 
@@ -57,7 +80,7 @@ Levanta PostgreSQL, la API y el frontend. Antes, completar en `.env`:
 docker compose up --build
 ```
 
-Aplicación en http://localhost:8080 (puerto configurable con `FRONTEND_PORT`). Las migraciones se aplican al arrancar. Para detener: `docker compose down` (añadir `-v` borra también la base y los documentos).
+Aplicación en http://localhost:8080 (puerto configurable con `FRONTEND_PORT`). Para usar Supabase en lugar del PostgreSQL del compose, añadir al `.env` `DOCKER_DB_CONNECTION` con la cadena del *session pooler* y `DOCKER_APPLY_MIGRATIONS=false`. Las migraciones se aplican al arrancar. Para detener: `docker compose down` (añadir `-v` borra también la base y los documentos).
 
 ## Arquitectura y stack
 

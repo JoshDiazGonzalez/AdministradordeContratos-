@@ -1,6 +1,6 @@
 # Administracion y Control de Vigencia de Contratos
 #
-#   cp .env.example .env     # completar Jwt__Secret, Seed__AdminPassword y POSTGRES_PASSWORD
+#   Crear .env (ver README) con Jwt__Secret, Seed__AdminPassword y POSTGRES_PASSWORD
 #   docker compose up --build
 #
 # Aplicacion: http://localhost:8080 (FRONTEND_PORT)

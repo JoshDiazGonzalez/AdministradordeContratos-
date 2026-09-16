@@ -5,8 +5,8 @@ namespace Contratos.Api.Extensions;
 ///
 /// Existe porque .NET no lee .env de forma nativa: sin esto habria que exportar
 /// cada variable a mano antes de "dotnet run", o configurarlas en el perfil de
-/// depuracion del IDE. Con esto, clonar el repositorio, copiar .env.example a
-/// .env y pulsar F5 funciona.
+/// depuracion del IDE. Con esto, clonar el repositorio, crear el .env (ver README)
+/// y pulsar F5 funciona.
 ///
 /// Solo se usa en desarrollo. En produccion (Docker, nube) las variables las
 /// inyecta el orquestador y este cargador no interviene.

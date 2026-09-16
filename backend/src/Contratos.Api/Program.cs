@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore;
 var builder = WebApplication.CreateBuilder(args);
 
 // En desarrollo se carga el archivo .env de la raiz del repositorio antes de
-// construir la configuracion. Asi basta con copiar .env.example a .env y
+// construir la configuracion. Asi basta con crear el .env (ver README) y
 // ejecutar; no hace falta exportar variables a mano ni tocar el IDE.
 // En produccion las variables las inyecta el entorno y esto no se ejecuta.
 string? archivoEnv = null;

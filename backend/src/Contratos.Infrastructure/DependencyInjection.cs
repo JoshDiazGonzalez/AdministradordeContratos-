@@ -38,7 +38,7 @@ public static class DependencyInjection
                 """
                 Falta la cadena de conexion.
                 Defina ConnectionStrings__DefaultConnection como variable de entorno
-                (vea .env.example). Nunca la escriba en appsettings.json: ese archivo
+                (vea el README). Nunca la escriba en appsettings.json: ese archivo
                 si se versiona.
                 """);
         }
@@ -142,7 +142,7 @@ public static class DependencyInjection
             return false;
         }
 
-        // Los marcadores de .env.example van entre angulos. Ningun componente
+        // Los marcadores de plantilla van entre angulos (<password>). Ningun componente
         // valido de una cadena de conexion de Npgsql los contiene.
         return !connectionString.Contains('<') && !connectionString.Contains('>');
     }
