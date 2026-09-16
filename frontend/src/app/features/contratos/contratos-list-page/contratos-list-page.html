@@ -1,6 +1,148 @@
 <header class="page-header">
   <div>
     <h1 class="page-title">Contratos</h1>
-    <p class="page-subtitle">Consulte y filtre los contratos de proveedores.</p>
+    <p class="page-subtitle">Consulte la vigencia de los contratos de proveedores.</p>
   </div>
+  <a routerLink="/contratos/nuevo" class="btn btn-primary">
+    <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+      <path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+    </svg>
+    Nuevo contrato
+  </a>
 </header>
+
+@if (error(); as textoError) {
+  <div class="alert alert-error error" role="alert">
+    <span>{{ textoError }}</span>
+    <button type="button" class="btn btn-secondary" (click)="reintentar()">Reintentar</button>
+  </div>
+}
+
+@if (pagina(); as datos) {
+  @if (datos.totalItems === 0) {
+    <section class="card vacio">
+      <svg viewBox="0 0 24 24" width="40" height="40" aria-hidden="true">
+        <path
+          d="M7 3h7l5 5v13H7zM14 3v5h5"
+          fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"
+        />
+      </svg>
+      <h2>Aún no hay contratos registrados</h2>
+      <p>Registre el primer contrato de un proveedor para empezar a controlar su vigencia.</p>
+      <a routerLink="/contratos/nuevo" class="btn btn-primary">Registrar contrato</a>
+    </section>
+  } @else {
+    <section class="card listado" [class.actualizando]="cargando()" [attr.aria-busy]="cargando()">
+      @if (cargando()) {
+        <div class="indicador-actualizacion">
+          <app-spinner tamano="sm" etiqueta="Actualizando contratos" />
+        </div>
+      }
+
+      <!-- Escritorio y tablet: tabla -->
+      <div class="tabla-contenedor">
+        <table class="table">
+          <caption class="sr-only">Contratos de proveedores</caption>
+          <thead>
+            <tr>
+              <th scope="col">Proveedor</th>
+              <th scope="col" class="numeric">Monto</th>
+              <th scope="col">Fecha inicio</th>
+              <th scope="col">Fecha vencimiento</th>
+              <th scope="col">Estado</th>
+              <th scope="col">Descripción</th>
+              <th scope="col">Documento</th>
+              <th scope="col"><span class="sr-only">Acciones</span></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (contrato of datos.items; track contrato.id) {
+              <tr>
+                <td class="proveedor">{{ contrato.nombreProveedor }}</td>
+                <td class="numeric">{{ contrato.montoContrato | currency: 'USD' }}</td>
+                <td class="fecha">{{ contrato.fechaInicio | fechaCorta }}</td>
+                <td class="fecha">{{ contrato.fechaVencimiento | fechaCorta }}</td>
+                <td><app-estado-badge [estado]="contrato.estado" /></td>
+                <td>
+                  <span class="descripcion" [attr.title]="contrato.descripcion">
+                    {{ contrato.descripcion }}
+                  </span>
+                </td>
+                <td>
+                  <span class="documento" [attr.title]="contrato.archivoNombre">
+                    <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
+                      <path d="M7 3h7l5 5v13H7zM14 3v5h5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" />
+                    </svg>
+                    <span class="nombre-archivo">{{ contrato.archivoNombre }}</span>
+                  </span>
+                </td>
+                <td class="acciones">
+                  <a [routerLink]="['/contratos', contrato.id]" class="btn btn-link">
+                    Ver detalle<span class="sr-only"> de {{ contrato.nombreProveedor }}</span>
+                  </a>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Movil: tarjetas. Una tabla de 8 columnas no se lee en 375 px. -->
+      <ul class="tarjetas">
+        @for (contrato of datos.items; track contrato.id) {
+          <li class="tarjeta">
+            <div class="tarjeta-encabezado">
+              <h2 class="tarjeta-proveedor">{{ contrato.nombreProveedor }}</h2>
+              <app-estado-badge [estado]="contrato.estado" />
+            </div>
+            <dl class="tarjeta-datos">
+              <div>
+                <dt>Monto</dt>
+                <dd class="numeric-inline">{{ contrato.montoContrato | currency: 'USD' }}</dd>
+              </div>
+              <div>
+                <dt>Vigencia</dt>
+                <dd>{{ contrato.fechaInicio | fechaCorta }} – {{ contrato.fechaVencimiento | fechaCorta }}</dd>
+              </div>
+              <div>
+                <dt>Documento</dt>
+                <dd class="nombre-archivo">{{ contrato.archivoNombre }}</dd>
+              </div>
+            </dl>
+            <p class="tarjeta-descripcion">{{ contrato.descripcion }}</p>
+            <a [routerLink]="['/contratos', contrato.id]" class="btn btn-secondary tarjeta-accion">
+              Ver detalle<span class="sr-only"> de {{ contrato.nombreProveedor }}</span>
+            </a>
+          </li>
+        }
+      </ul>
+
+      <div class="pie">
+        <app-paginador
+          [page]="datos.page"
+          [pageSize]="datos.pageSize"
+          [totalItems]="datos.totalItems"
+          [totalPages]="datos.totalPages"
+          [opcionesTamano]="tamanosPagina"
+          [deshabilitado]="cargando()"
+          elementos="contratos"
+          (cambioPagina)="irAPagina($event)"
+          (cambioTamano)="cambiarTamano($event)"
+        />
+      </div>
+    </section>
+  }
+} @else if (cargando()) {
+  <!-- Primera carga: esqueleto con la forma de la tabla para evitar saltos. -->
+  <section class="card esqueleto" aria-busy="true">
+    <app-spinner etiqueta="Cargando contratos" />
+    @for (fila of [1, 2, 3, 4, 5]; track fila) {
+      <div class="esqueleto-fila" aria-hidden="true">
+        <span class="barra ancha"></span>
+        <span class="barra"></span>
+        <span class="barra"></span>
+        <span class="barra corta"></span>
+      </div>
+    }
+  </section>
+}

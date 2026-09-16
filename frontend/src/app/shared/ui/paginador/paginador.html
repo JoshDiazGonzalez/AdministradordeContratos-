@@ -1,0 +1,56 @@
+<nav class="paginador" aria-label="Paginación">
+  <p class="resumen" aria-live="polite">
+    @if (totalItems() === 0) {
+      Sin {{ elementos() }}
+    } @else {
+      Mostrando <strong>{{ desde() }}–{{ hasta() }}</strong> de
+      <strong>{{ totalItems() }}</strong> {{ elementos() }}
+    }
+  </p>
+
+  <div class="controles">
+    <label class="tamano">
+      <span>Por página</span>
+      <select
+        class="input selector"
+        [value]="pageSize()"
+        [disabled]="deshabilitado()"
+        (change)="cambiarTamano($event)"
+      >
+        @for (opcion of opcionesTamano(); track opcion) {
+          <option [value]="opcion" [selected]="opcion === pageSize()">{{ opcion }}</option>
+        }
+      </select>
+    </label>
+
+    <div class="botones">
+      <button
+        type="button"
+        class="btn btn-secondary"
+        [disabled]="!hayAnterior() || deshabilitado()"
+        (click)="irA(page() - 1)"
+      >
+        <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
+          <path d="M15 6l-6 6 6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+        <span>Anterior</span>
+      </button>
+
+      <span class="posicion">
+        Página {{ totalPages() === 0 ? 0 : page() }} de {{ totalPages() }}
+      </span>
+
+      <button
+        type="button"
+        class="btn btn-secondary"
+        [disabled]="!haySiguiente() || deshabilitado()"
+        (click)="irA(page() + 1)"
+      >
+        <span>Siguiente</span>
+        <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
+          <path d="M9 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+      </button>
+    </div>
+  </div>
+</nav>

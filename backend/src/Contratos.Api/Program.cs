@@ -100,6 +100,11 @@ using (var scope = app.Services.CreateScope())
 
     var seeder = scope.ServiceProvider.GetRequiredService<DatabaseSeeder>();
     await seeder.SembrarAsync();
+
+    // Contratos ficticios para demostrar los cuatro estados. Solo si
+    // Seed__DatosDemo=true y la tabla esta vacia.
+    var demo = scope.ServiceProvider.GetRequiredService<DemoDataSeeder>();
+    await demo.SembrarAsync();
 }
 
 // Primero en la cadena: captura cualquier excepcion de los middlewares siguientes.

@@ -117,6 +117,7 @@ public static class DependencyInjection
         services.AddScoped<IContratoRepository, ContratoRepository>();
         services.AddScoped<IContratoService, ContratoService>();
         services.AddScoped<DatabaseSeeder>();
+        services.AddScoped<DemoDataSeeder>();
 
         AgregarAlmacenamiento(services, configuration);
 
