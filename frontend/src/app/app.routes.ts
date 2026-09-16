@@ -1,23 +1,27 @@
 import { Routes } from '@angular/router';
 
+import { authGuard, invitadoGuard } from './core/guards/auth.guard';
+
 const TITULO_APP = 'Administración de Contratos';
 
 /**
  * Rutas de la aplicacion. Todas las pantallas se cargan bajo demanda
  * (loadComponent), asi el login no descarga el codigo del resto.
  *
- * Los guards de autenticacion se anaden en la Fase 10 sobre la ruta del layout,
- * de modo que protegen a la vez todas las rutas hijas.
+ * authGuard se aplica una sola vez sobre la ruta del layout, asi protege a la vez
+ * todas las pantallas hijas y ninguna nueva puede quedar sin proteger por olvido.
  */
 export const routes: Routes = [
   {
     path: 'login',
     title: `Iniciar sesión | ${TITULO_APP}`,
+    canActivate: [invitadoGuard],
     loadComponent: () =>
       import('./features/auth/login-page/login-page').then((m) => m.LoginPage),
   },
   {
     path: '',
+    canActivate: [authGuard],
     loadComponent: () =>
       import('./shared/layout/app-shell/app-shell').then((m) => m.AppShell),
     children: [

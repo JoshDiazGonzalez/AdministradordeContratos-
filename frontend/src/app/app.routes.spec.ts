@@ -5,6 +5,8 @@ import { Router, provideRouter, withComponentInputBinding } from '@angular/route
 import { RouterTestingHarness } from '@angular/router/testing';
 
 import { routes } from './app.routes';
+import { AuthService } from './core/services/auth.service';
+import { LoginPage } from './features/auth/login-page/login-page';
 import { ContratoDetailPage } from './features/contratos/contrato-detail-page/contrato-detail-page';
 import { ContratoFormPage } from './features/contratos/contrato-form-page/contrato-form-page';
 import { ContratosListPage } from './features/contratos/contratos-list-page/contratos-list-page';
@@ -30,10 +32,36 @@ function paginaRenderizada<T>(harness: RouterTestingHarness, pagina: Type<T>): T
 }
 
 describe('Rutas', () => {
+  // Sesion simulada: estas pruebas verifican el enrutado, no la autenticacion.
+  let token: string | null;
+
   beforeEach(() => {
+    token = 'token-valido';
+
     TestBed.configureTestingModule({
-      providers: [provideRouter(routes, withComponentInputBinding())],
+      providers: [
+        provideRouter(routes, withComponentInputBinding()),
+        {
+          provide: AuthService,
+          useValue: {
+            token: () => token,
+            usuario: () => ({ username: 'admin', nombreCompleto: 'Administrador' }),
+            login: vi.fn(),
+            cerrarSesion: vi.fn(),
+          },
+        },
+      ],
     });
+  });
+
+  it('sin sesion, cualquier pantalla del sistema lleva al login', async () => {
+    token = null;
+
+    const harness = await navegarA('/contratos/nuevo');
+
+    expect(paginaRenderizada(harness, LoginPage)).not.toBeNull();
+    expect(paginaRenderizada(harness, ContratoFormPage)).toBeNull();
+    expect(TestBed.inject(Router).url).toBe('/login?returnUrl=%2Fcontratos%2Fnuevo');
   });
 
   it('/contratos/nuevo abre el formulario y no el detalle', async () => {

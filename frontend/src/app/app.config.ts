@@ -1,8 +1,9 @@
-import { provideHttpClient, withFetch } from '@angular/common/http';
+import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
 import { ApplicationConfig, provideBrowserGlobalErrorListeners } from '@angular/core';
 import { provideRouter, withComponentInputBinding } from '@angular/router';
 
 import { routes } from './app.routes';
+import { authInterceptor } from './core/interceptors/auth.interceptor';
 
 /**
  * Configuracion raiz de la aplicacion.
@@ -17,7 +18,7 @@ export const appConfig: ApplicationConfig = {
     // componentes como inputs, sin inyectar ActivatedRoute.
     provideRouter(routes, withComponentInputBinding()),
     // withFetch usa la API fetch del navegador en lugar de XMLHttpRequest.
-    // Los interceptores de autenticacion se registran aqui en la Fase 10.
-    provideHttpClient(withFetch()),
+    // authInterceptor anade el JWT y cierra la sesion si la API responde 401.
+    provideHttpClient(withFetch(), withInterceptors([authInterceptor])),
   ],
 };

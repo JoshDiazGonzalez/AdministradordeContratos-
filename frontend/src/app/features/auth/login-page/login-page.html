@@ -1,5 +1,77 @@
-<header class="page-header">
-  <div>
-    <h1 class="page-title">Iniciar sesión</h1>
+<main class="pagina">
+  <div class="contenedor">
+    <header class="encabezado">
+      <img src="favicon.ico" alt="" width="44" height="44" />
+      <h1 class="titulo">Administración de Contratos</h1>
+      <p class="subtitulo">Control de vigencia de contratos de proveedores</p>
+    </header>
+
+    <section class="card tarjeta" aria-labelledby="titulo-formulario">
+      <h2 id="titulo-formulario" class="titulo-formulario">Iniciar sesión</h2>
+
+      @if (aviso(); as textoAviso) {
+        <p class="alert aviso" role="status">{{ textoAviso }}</p>
+      }
+
+      @if (error(); as textoError) {
+        <p class="alert alert-error" role="alert">{{ textoError }}</p>
+      }
+
+      <form [formGroup]="formulario" (ngSubmit)="enviar()" novalidate>
+        <div class="campo">
+          <label class="label" for="login-username">Usuario</label>
+          <input
+            id="login-username"
+            class="input"
+            formControlName="username"
+            type="text"
+            autocomplete="username"
+            autocapitalize="none"
+            spellcheck="false"
+            [attr.aria-invalid]="campoInvalido('username')"
+            [attr.aria-describedby]="campoInvalido('username') ? 'login-username-error' : null"
+          />
+          @if (campoInvalido('username')) {
+            <p id="login-username-error" class="field-error">Ingrese su usuario.</p>
+          }
+        </div>
+
+        <div class="campo">
+          <label class="label" for="login-password">Contraseña</label>
+          <div class="con-accion">
+            <input
+              id="login-password"
+              class="input"
+              formControlName="password"
+              [type]="mostrarPassword() ? 'text' : 'password'"
+              autocomplete="current-password"
+              [attr.aria-invalid]="campoInvalido('password')"
+              [attr.aria-describedby]="campoInvalido('password') ? 'login-password-error' : null"
+            />
+            <button
+              type="button"
+              class="accion-campo"
+              [attr.aria-pressed]="mostrarPassword()"
+              (click)="alternarPassword()"
+            >
+              {{ mostrarPassword() ? 'Ocultar' : 'Mostrar' }}
+              <span class="sr-only">contraseña</span>
+            </button>
+          </div>
+          @if (campoInvalido('password')) {
+            <p id="login-password-error" class="field-error">Ingrese su contraseña.</p>
+          }
+        </div>
+
+        <button type="submit" class="btn btn-primary enviar" [disabled]="enviando()">
+          @if (enviando()) {
+            <app-spinner tamano="sm" etiqueta="Iniciando sesión" />
+            <span aria-hidden="true">Iniciando sesión</span>
+          } @else {
+            Iniciar sesión
+          }
+        </button>
+      </form>
+    </section>
   </div>
-</header>
+</main>

@@ -3,6 +3,8 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router, RouterLink, RouterOutlet } from '@angular/router';
 import { filter, map, tap } from 'rxjs';
 
+import { AuthService } from '../../../core/services/auth.service';
+
 export type SeccionNavegacion = 'dashboard' | 'contratos' | 'nuevo';
 
 interface EnlaceNavegacion {
@@ -49,6 +51,9 @@ export function seccionDeUrl(url: string): SeccionNavegacion | null {
 })
 export class AppShell {
   private readonly router = inject(Router);
+  private readonly auth = inject(AuthService);
+
+  protected readonly usuario = this.auth.usuario;
 
   protected readonly enlaces: readonly EnlaceNavegacion[] = [
     { seccion: 'dashboard', ruta: '/dashboard', etiqueta: 'Dashboard' },
@@ -68,6 +73,10 @@ export class AppShell {
     ),
     { initialValue: seccionDeUrl(this.router.url) },
   );
+
+  protected cerrarSesion(): void {
+    this.auth.cerrarSesion('manual');
+  }
 
   protected alternarMenu(): void {
     this.menuAbierto.update((abierto) => !abierto);

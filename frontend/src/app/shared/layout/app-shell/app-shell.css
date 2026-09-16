@@ -75,6 +75,71 @@
   background: var(--color-background);
 }
 
+/* ---- Sesion ---------------------------------------------------------------- */
+.sesion {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-left: auto;
+  min-width: 0;
+}
+
+.usuario {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 0;
+  font-size: 0.875rem;
+  color: var(--color-text-primary);
+}
+
+.avatar {
+  display: inline-grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 999px;
+  background: var(--color-primary-light);
+  color: var(--color-primary-strong);
+  font-weight: 500;
+}
+
+.nombre-usuario {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cerrar {
+  min-height: 2.25rem;
+  padding: 0 0.75rem;
+  font-size: 0.875rem;
+}
+
+/*
+ * En movil no caben el nombre del sistema, el del usuario y el texto del boton:
+ * se conserva el icono de salida y el avatar, y los textos siguen disponibles
+ * para lectores de pantalla.
+ */
+@media (max-width: 639px) {
+  .nombre-sistema,
+  .nombre-usuario,
+  .texto-cerrar {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+  }
+
+  .cerrar {
+    width: 2.25rem;
+    padding: 0;
+  }
+}
+
 /* ---- Cuerpo ---------------------------------------------------------------- */
 .cuerpo {
   display: flex;
