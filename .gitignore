@@ -1,0 +1,59 @@
+# ---- Secrets ----
+.env
+.env.local
+*.env
+!.env.example
+appsettings.Production.json
+appsettings.*.local.json
+
+# ---- .NET ----
+bin/
+obj/
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+*.user
+*.suo
+*.userprefs
+*.dll
+*.pdb
+.vs/
+artifacts/
+TestResults/
+*.trx
+*.coverage
+coverage*.json
+coverage*.xml
+
+# ---- Node / Angular ----
+node_modules/
+dist/
+tmp/
+out-tsc/
+.angular/
+npm-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# ---- Editores ----
+.idea/
+.vscode/*
+!.vscode/extensions.json
+*.swp
+
+# ---- SO ----
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+.DS_Store
+
+# ---- Archivos subidos en desarrollo (LocalFileStorageService) ----
+backend/src/Contratos.Api/storage/
+uploads/
+
+# ---- Agent skills instaladas con `npx skills` ----
+# Son dependencias de herramientas de desarrollo, no parte del entregable.
+# Se restauran con: npx skills install   (a partir de skills-lock.json)
+.agents/
+.claude/skills/
