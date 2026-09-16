@@ -20,6 +20,10 @@ public class ContratoConfiguration : IEntityTypeConfiguration<Contrato>
             .IsRequired()
             .HasMaxLength(200);
 
+        builder.Property(c => c.NombreProveedorBusqueda)
+            .IsRequired()
+            .HasMaxLength(200);
+
         // Dinero: numeric exacto. Nunca float ni double.
         builder.Property(c => c.MontoContrato)
             .IsRequired()
@@ -73,9 +77,9 @@ public class ContratoConfiguration : IEntityTypeConfiguration<Contrato>
             t.HasCheckConstraint("ck_contratos_archivo_tamano", "archivo_tamano_bytes > 0");
         });
 
-        // Busqueda parcial por proveedor (ILIKE) y ordenamiento.
-        builder.HasIndex(c => c.NombreProveedor)
-            .HasDatabaseName("ix_contratos_nombre_proveedor");
+        // La busqueda por proveedor se hace sobre la columna normalizada.
+        builder.HasIndex(c => c.NombreProveedorBusqueda)
+            .HasDatabaseName("ix_contratos_nombre_proveedor_busqueda");
 
         builder.HasIndex(c => c.FechaInicio)
             .HasDatabaseName("ix_contratos_fecha_inicio");

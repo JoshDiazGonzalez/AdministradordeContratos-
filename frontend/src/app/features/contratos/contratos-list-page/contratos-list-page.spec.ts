@@ -7,7 +7,8 @@ import { RouterTestingHarness } from '@angular/router/testing';
 import { Contrato } from '../../../core/models/contrato.model';
 import { ResultadoPaginado } from '../../../core/models/paginacion.model';
 import { API_URL } from '../../../core/services/api-url.token';
-import { ContratosListPage, leerPaginacion } from './contratos-list-page';
+import { leerPaginacion } from '../contratos-filtro-url';
+import { ContratosListPage } from './contratos-list-page';
 
 const API = 'https://api.test/api';
 
@@ -220,18 +221,83 @@ describe('ContratosListPage', () => {
     expect(raiz.querySelector('tbody td')?.textContent?.trim()).toBe('Proveedor 3');
   });
 
+  describe('con filtros', () => {
+    it('envia a la API los filtros de la URL', async () => {
+      const peticion = await abrir(
+        '/contratos?proveedor=beta&estado=PorVencer&fechaVencimientoHasta=2026-12-31',
+      );
+
+      expect(peticion.request.params.get('proveedor')).toBe('beta');
+      expect(peticion.request.params.get('estado')).toBe('PorVencer');
+      expect(peticion.request.params.get('fechaVencimientoHasta')).toBe('2026-12-31');
+      peticion.flush(pagina([contrato(1)]));
+    });
+
+    it('no envia a la API filtros invalidos escritos a mano en la URL', async () => {
+      const peticion = await abrir('/contratos?estado=Inexistente&fechaInicioDesde=2026-02-30');
+
+      expect(peticion.request.params.has('estado')).toBe(false);
+      expect(peticion.request.params.has('fechaInicioDesde')).toBe(false);
+      peticion.flush(pagina([contrato(1)]));
+    });
+
+    it('un rango invertido en la URL no consulta la API y muestra el motivo', async () => {
+      await harness.navigateByUrl(
+        '/contratos?fechaInicioDesde=2026-12-31&fechaInicioHasta=2026-01-01',
+      );
+      harness.detectChanges();
+
+      // afterEach verifica que no quedo ninguna peticion: la API no se llamo.
+      http.expectNone((r) => r.url === `${API}/contratos`);
+      expect((harness.routeNativeElement as HTMLElement).querySelector('[role="alert"]')?.textContent)
+        .toContain('fecha de inicio');
+    });
+
+    it('cambiar un filtro vuelve a la primera pagina', async () => {
+      const raiz = await responder(
+        await abrir('/contratos?page=3'),
+        pagina([contrato(21)], { page: 3, totalItems: 30, totalPages: 3 }),
+      );
+
+      const estado = raiz.querySelector<HTMLSelectElement>('#filtro-estado')!;
+      estado.value = 'Vencido';
+      estado.dispatchEvent(new Event('change'));
+      await harness.fixture.whenStable();
+
+      expect(TestBed.inject(Router).url).toBe('/contratos?estado=Vencido');
+      const nueva = http.expectOne((r) => r.url === `${API}/contratos`);
+      expect(nueva.request.params.get('page')).toBe('1');
+      nueva.flush(pagina([]));
+    });
+
+    it('sin resultados por los filtros ofrece limpiarlos, no registrar un contrato', async () => {
+      const raiz = await responder(await abrir('/contratos?proveedor=inexistente'), pagina([]));
+
+      expect(raiz.querySelector('.vacio h2')?.textContent).toContain('No hay contratos que coincidan');
+      expect(raiz.querySelector('.vacio a[href="/contratos/nuevo"]')).toBeNull();
+
+      raiz.querySelector<HTMLButtonElement>('.vacio button')!.click();
+      await harness.fixture.whenStable();
+
+      expect(TestBed.inject(Router).url).toBe('/contratos');
+      http.expectOne((r) => r.url === `${API}/contratos`).flush(pagina([contrato(1)]));
+    });
+  });
+
   it('cambiar el tamano de pagina vuelve a la primera pagina', async () => {
     const raiz = await responder(
       await abrir('/contratos?page=3'),
       pagina([contrato(21)], { page: 3, totalItems: 30, totalPages: 3 }),
     );
 
-    const selector = raiz.querySelector<HTMLSelectElement>('select')!;
+    // Se apunta al paginador: los filtros tambien tienen un select (estado).
+    const selector = raiz.querySelector<HTMLSelectElement>('app-paginador select')!;
     selector.value = '20';
     selector.dispatchEvent(new Event('change'));
     await harness.fixture.whenStable();
 
-    expect(TestBed.inject(Router).url).toBe('/contratos?page=1&pageSize=20');
+    // page se elimina de la URL: sin parametro equivale a la primera pagina.
+    expect(TestBed.inject(Router).url).toBe('/contratos?pageSize=20');
     http.expectOne((r) => r.url === `${API}/contratos`).flush(pagina([], { totalItems: 30, totalPages: 2 }));
   });
 });

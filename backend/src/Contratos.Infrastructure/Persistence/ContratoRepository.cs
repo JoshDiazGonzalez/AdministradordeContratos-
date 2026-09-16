@@ -1,4 +1,3 @@
-using System.Diagnostics.CodeAnalysis;
 using Contratos.Application.Common;
 using Contratos.Application.Contratos;
 using Contratos.Domain.Entities;
@@ -87,28 +86,19 @@ public class ContratoRepository : IContratoRepository
     internal IQueryable<Contrato> ConsultaFiltrada(ContratoFiltro filtro, DateOnly hoy) =>
         AplicarFiltros(_context.Contratos.AsNoTracking(), filtro, hoy);
 
-    [SuppressMessage("Globalization", "CA1304:Especificar CultureInfo",
-        Justification = "ToLower() se traduce a lower() de SQL; la sobrecarga con " +
-                        "CultureInfo no es traducible por EF Core.")]
-    [SuppressMessage("Globalization", "CA1311:Especificar referencia cultural",
-        Justification = "Igual que CA1304: la comparacion la resuelve el motor de " +
-                        "base de datos, no .NET.")]
-    [SuppressMessage("Performance", "CA1862:Usar StringComparison",
-        Justification = "Contains(string, StringComparison) lanza excepcion al " +
-                        "traducirse a SQL en EF Core.")]
     private static IQueryable<Contrato> AplicarFiltros(
         IQueryable<Contrato> consulta,
         ContratoFiltro filtro,
         DateOnly hoy)
     {
-        if (!string.IsNullOrWhiteSpace(filtro.Proveedor))
+        var termino = TextoBusqueda.Normalizar(filtro.Proveedor);
+        if (termino.Length > 0)
         {
-            // Coincidencia parcial sin distinguir mayusculas. Se usa ToLower en
-            // ambos lados en lugar de ILIKE para que la consulta sea portable
-            // entre PostgreSQL y el SQLite de los tests de integracion.
-            // Ambas llamadas las ejecuta el motor de base de datos, no .NET.
-            var termino = filtro.Proveedor.Trim().ToLowerInvariant();
-            consulta = consulta.Where(c => c.NombreProveedor.ToLower().Contains(termino));
+            // Coincidencia parcial sin distinguir mayusculas ni tildes: el termino
+            // se normaliza igual que la columna, que ya se guardo normalizada.
+            // Asi "pacifico" encuentra "Seguridad Integral del Pacífico" en
+            // PostgreSQL y en SQLite, sin depender de extensiones del motor.
+            consulta = consulta.Where(c => c.NombreProveedorBusqueda.Contains(termino));
         }
 
         if (filtro.FechaInicioDesde is { } inicioDesde)

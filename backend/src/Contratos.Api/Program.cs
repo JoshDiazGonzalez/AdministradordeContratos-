@@ -21,7 +21,39 @@ if (builder.Environment.IsDevelopment())
 // usando el separador "__" (ej. ConnectionStrings__DefaultConnection).
 builder.Configuration.AddEnvironmentVariables();
 
-builder.Services.AddControllers()
+builder.Services.AddControllers(options =>
+    {
+        // Mensajes de conversion de parametros (?fechaInicioDesde=no-es-fecha) en
+        // espanol. Sin esto ASP.NET responde en ingles y el cliente recibe errores
+        // en dos idiomas segun que capa los detecte.
+        var mensajes = options.ModelBindingMessageProvider;
+        mensajes.SetAttemptedValueIsInvalidAccessor((valor, campo) =>
+            $"El valor '{valor}' no es válido para {campo}.");
+        mensajes.SetValueIsInvalidAccessor(valor => $"El valor '{valor}' no es válido.");
+        mensajes.SetValueMustBeANumberAccessor(campo => $"{campo} debe ser un número.");
+        mensajes.SetMissingBindRequiredValueAccessor(campo => $"Falta el valor de {campo}.");
+        mensajes.SetValueMustNotBeNullAccessor(campo => $"{campo} es obligatorio.");
+        mensajes.SetNonPropertyAttemptedValueIsInvalidAccessor(valor => $"El valor '{valor}' no es válido.");
+        mensajes.SetUnknownValueIsInvalidAccessor(campo => $"El valor indicado para {campo} no es válido.");
+    })
+    .ConfigureApiBehaviorOptions(options =>
+    {
+        // Mismo formato y titulo que los errores del middleware.
+        options.InvalidModelStateResponseFactory = contexto =>
+        {
+            var problema = new Microsoft.AspNetCore.Mvc.ValidationProblemDetails(contexto.ModelState)
+            {
+                Status = StatusCodes.Status400BadRequest,
+                Title = "Error de validacion",
+                Instance = $"{contexto.HttpContext.Request.Method} {contexto.HttpContext.Request.Path}",
+            };
+
+            return new Microsoft.AspNetCore.Mvc.BadRequestObjectResult(problema)
+            {
+                ContentTypes = { "application/problem+json" },
+            };
+        };
+    })
     .AddJsonOptions(options =>
     {
         // Los estados viajan como texto ("PorVencer"), no como numero: el cliente

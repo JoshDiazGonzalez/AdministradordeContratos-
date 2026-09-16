@@ -1,0 +1,122 @@
+<section class="card filtros" aria-labelledby="filtros-titulo">
+  <div class="cabecera">
+    <h2 id="filtros-titulo" class="titulo">
+      Filtros
+      @if (cantidadActivos() > 0) {
+        <span class="contador">
+          {{ cantidadActivos() }}
+          <span class="sr-only">{{ cantidadActivos() === 1 ? 'filtro aplicado' : 'filtros aplicados' }}</span>
+        </span>
+      }
+    </h2>
+
+    <button
+      type="button"
+      class="btn btn-secondary alternar"
+      [attr.aria-expanded]="abierto()"
+      aria-controls="filtros-cuerpo"
+      (click)="alternar()"
+    >
+      {{ abierto() ? 'Ocultar' : 'Mostrar' }}
+    </button>
+  </div>
+
+  <form
+    id="filtros-cuerpo"
+    class="cuerpo"
+    [class.abierto]="abierto()"
+    [formGroup]="formulario"
+    role="search"
+    aria-label="Filtrar contratos"
+  >
+    <div class="campo proveedor">
+      <label class="label" for="filtro-proveedor">Proveedor</label>
+      <input
+        id="filtro-proveedor"
+        class="input"
+        type="search"
+        formControlName="proveedor"
+        placeholder="Buscar por nombre"
+        autocomplete="off"
+        maxlength="200"
+      />
+    </div>
+
+    <div class="campo estado">
+      <label class="label" for="filtro-estado">Estado</label>
+      <select id="filtro-estado" class="input" formControlName="estado">
+        <option value="">Todos</option>
+        @for (estado of estados; track estado) {
+          <option [value]="estado">{{ etiquetas[estado] }}</option>
+        }
+      </select>
+    </div>
+
+    <fieldset class="rango rango-inicio">
+      <legend class="label">Fecha de inicio</legend>
+      <div class="rango-campos">
+        <div>
+          <label class="sublabel" for="filtro-inicio-desde">Desde</label>
+          <input
+            id="filtro-inicio-desde"
+            class="input"
+            type="date"
+            formControlName="fechaInicioDesde"
+            [max]="formulario.controls.fechaInicioHasta.value || null"
+          />
+        </div>
+        <div>
+          <label class="sublabel" for="filtro-inicio-hasta">Hasta</label>
+          <input
+            id="filtro-inicio-hasta"
+            class="input"
+            type="date"
+            formControlName="fechaInicioHasta"
+            [min]="formulario.controls.fechaInicioDesde.value || null"
+          />
+        </div>
+      </div>
+    </fieldset>
+
+    <fieldset class="rango rango-vencimiento">
+      <legend class="label">Fecha de vencimiento</legend>
+      <div class="rango-campos">
+        <div>
+          <label class="sublabel" for="filtro-vence-desde">Desde</label>
+          <input
+            id="filtro-vence-desde"
+            class="input"
+            type="date"
+            formControlName="fechaVencimientoDesde"
+            [max]="formulario.controls.fechaVencimientoHasta.value || null"
+          />
+        </div>
+        <div>
+          <label class="sublabel" for="filtro-vence-hasta">Hasta</label>
+          <input
+            id="filtro-vence-hasta"
+            class="input"
+            type="date"
+            formControlName="fechaVencimientoHasta"
+            [min]="formulario.controls.fechaVencimientoDesde.value || null"
+          />
+        </div>
+      </div>
+    </fieldset>
+
+    <div class="acciones">
+      <button
+        type="button"
+        class="btn btn-secondary"
+        [disabled]="!hayQueLimpiar()"
+        (click)="limpiar()"
+      >
+        Limpiar filtros
+      </button>
+    </div>
+
+    @if (errorRango(); as mensaje) {
+      <p class="field-error error-rango" role="alert">{{ mensaje }}</p>
+    }
+  </form>
+</section>

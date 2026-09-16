@@ -11,6 +11,8 @@
   </a>
 </header>
 
+<app-contratos-filtros [criterios]="criterios()" (cambio)="aplicarCriterios($event)" />
+
 @if (error(); as textoError) {
   <div class="alert alert-error error" role="alert">
     <span>{{ textoError }}</span>
@@ -19,7 +21,21 @@
 }
 
 @if (pagina(); as datos) {
-  @if (datos.totalItems === 0) {
+  @if (datos.totalItems === 0 && hayFiltros()) {
+    <!-- Sin resultados por los filtros: la accion util es ampliar la busqueda,
+         no registrar un contrato. -->
+    <section class="card vacio" role="status">
+      <svg viewBox="0 0 24 24" width="40" height="40" aria-hidden="true">
+        <path
+          d="M11 4a7 7 0 1 0 0 14 7 7 0 0 0 0-14zM20 20l-4-4"
+          fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+        />
+      </svg>
+      <h2>No hay contratos que coincidan con los filtros</h2>
+      <p>Pruebe con otro nombre de proveedor, otro estado o un rango de fechas más amplio.</p>
+      <button type="button" class="btn btn-secondary" (click)="limpiarFiltros()">Limpiar filtros</button>
+    </section>
+  } @else if (datos.totalItems === 0) {
     <section class="card vacio">
       <svg viewBox="0 0 24 24" width="40" height="40" aria-hidden="true">
         <path

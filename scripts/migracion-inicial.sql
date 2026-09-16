@@ -162,3 +162,48 @@ BEGIN
 END $EF$;
 COMMIT;
 
+START TRANSACTION;
+
+DO $EF$
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM public.__ef_migrations_history WHERE "migration_id" = '20260916122208_BusquedaProveedorSinTildes') THEN
+    DROP INDEX ix_contratos_nombre_proveedor;
+    END IF;
+END $EF$;
+
+DO $EF$
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM public.__ef_migrations_history WHERE "migration_id" = '20260916122208_BusquedaProveedorSinTildes') THEN
+    ALTER TABLE contratos ADD nombre_proveedor_busqueda character varying(200) NOT NULL DEFAULT '';
+    END IF;
+END $EF$;
+
+DO $EF$
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM public.__ef_migrations_history WHERE "migration_id" = '20260916122208_BusquedaProveedorSinTildes') THEN
+    UPDATE contratos
+    SET nombre_proveedor_busqueda = trim(regexp_replace(
+        lower(translate(
+            nombre_proveedor,
+            'ÁÀÄÂÃáàäâãÉÈËÊéèëêÍÌÏÎíìïîÓÒÖÔÕóòöôõÚÙÜÛúùüûÑñÇç',
+            'AAAAAaaaaaEEEEeeeeIIIIiiiiOOOOOoooooUUUUuuuuNnCc')),
+        '\s+', ' ', 'g'));
+    END IF;
+END $EF$;
+
+DO $EF$
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM public.__ef_migrations_history WHERE "migration_id" = '20260916122208_BusquedaProveedorSinTildes') THEN
+    CREATE INDEX ix_contratos_nombre_proveedor_busqueda ON contratos (nombre_proveedor_busqueda);
+    END IF;
+END $EF$;
+
+DO $EF$
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM public.__ef_migrations_history WHERE "migration_id" = '20260916122208_BusquedaProveedorSinTildes') THEN
+    INSERT INTO public.__ef_migrations_history (migration_id, product_version)
+    VALUES ('20260916122208_BusquedaProveedorSinTildes', '10.0.12');
+    END IF;
+END $EF$;
+COMMIT;
+

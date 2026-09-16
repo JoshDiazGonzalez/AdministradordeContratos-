@@ -12,6 +12,7 @@ public class Contrato
     private Contrato()
     {
         NombreProveedor = string.Empty;
+        NombreProveedorBusqueda = string.Empty;
         Descripcion = string.Empty;
         ArchivoNombre = string.Empty;
         ArchivoRuta = string.Empty;
@@ -21,6 +22,12 @@ public class Contrato
     public Guid Id { get; private set; }
 
     public string NombreProveedor { get; private set; }
+
+    /// <summary>
+    /// Nombre normalizado para buscar sin distinguir mayusculas ni tildes.
+    /// Lo calcula siempre la entidad: nunca puede quedar desincronizado del nombre.
+    /// </summary>
+    public string NombreProveedorBusqueda { get; private set; }
 
     public decimal MontoContrato { get; private set; }
 
@@ -80,6 +87,7 @@ public class Contrato
             // produce UUIDv4 al insertar claves aleatorias.
             Id = Guid.CreateVersion7(),
             NombreProveedor = nombreProveedor.Trim(),
+            NombreProveedorBusqueda = TextoBusqueda.Normalizar(nombreProveedor),
             MontoContrato = montoContrato,
             FechaInicio = fechaInicio,
             FechaVencimiento = fechaVencimiento,
@@ -105,6 +113,7 @@ public class Contrato
         GuardarInvariantes(montoContrato, fechaInicio, fechaVencimiento);
 
         NombreProveedor = nombreProveedor.Trim();
+        NombreProveedorBusqueda = TextoBusqueda.Normalizar(nombreProveedor);
         MontoContrato = montoContrato;
         FechaInicio = fechaInicio;
         FechaVencimiento = fechaVencimiento;

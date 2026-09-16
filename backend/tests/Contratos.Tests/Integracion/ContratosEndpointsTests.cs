@@ -97,6 +97,23 @@ public class ContratosEndpointsTests : IClassFixture<ContratosApiFactory>
         Assert.Equal(esperados, pagina!.TotalItems);
     }
 
+    [Theory]
+    [InlineData("epsilon")]
+    [InlineData("EPSILON")]
+    [InlineData("épsilon")]
+    [InlineData("  EpSíLoN  ")]
+    public async Task El_filtro_de_proveedor_ignora_tildes_mayusculas_y_espacios(string termino)
+    {
+        // "Proveedor Epsilon" se encuentra escriba el usuario como escriba.
+        var cliente = await _factory.CrearClienteAutenticadoAsync();
+
+        var pagina = await cliente.GetFromJsonAsync<Pagina>(
+            $"/api/contratos?proveedor={Uri.EscapeDataString(termino)}&pageSize=50");
+
+        Assert.Single(pagina!.Items);
+        Assert.Equal("Proveedor Epsilon", pagina.Items[0].NombreProveedor);
+    }
+
     [Fact]
     public async Task Los_filtros_se_combinan()
     {

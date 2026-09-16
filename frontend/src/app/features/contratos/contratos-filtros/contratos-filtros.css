@@ -1,0 +1,174 @@
+.filtros {
+  margin-bottom: 1rem;
+  padding: 1rem;
+}
+
+.cabecera {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.titulo {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+.contador {
+  display: inline-grid;
+  place-items: center;
+  min-width: 1.375rem;
+  height: 1.375rem;
+  padding: 0 0.375rem;
+  border-radius: 999px;
+  background: var(--color-primary-light);
+  color: var(--color-primary-strong);
+  font-size: 0.75rem;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+
+.alternar {
+  min-height: 2.25rem;
+  padding: 0 0.75rem;
+  font-size: 0.875rem;
+}
+
+/* ---- Cuerpo: en movil se despliega; desde 768 px siempre visible ---------- */
+.cuerpo {
+  display: none;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.cuerpo.abierto {
+  display: grid;
+}
+
+.campo,
+.rango {
+  min-width: 0;
+}
+
+.rango {
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.rango legend {
+  padding: 0;
+}
+
+.rango-campos {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 0.5rem;
+}
+
+/*
+ * Los elementos de un grid tienen min-width:auto por defecto, y un input de
+ * fecha nativo impone un ancho minimo propio: en movil el campo "Hasta" se salia
+ * del borde de la tarjeta. min-width:0 permite que se ajuste a su columna.
+ */
+.rango-campos > div {
+  min-width: 0;
+}
+
+.sublabel {
+  display: block;
+  margin-bottom: 0.25rem;
+  font-size: 0.8125rem;
+  color: var(--color-text-secondary);
+}
+
+/* Los campos de fecha nativos no respetan bien width:100% en algunos navegadores. */
+input[type='date'] {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.acciones {
+  display: flex;
+  align-items: flex-end;
+}
+
+.acciones .btn {
+  width: 100%;
+}
+
+.error-rango {
+  grid-column: 1 / -1;
+  margin: 0;
+}
+
+/*
+ * Disposicion segun el ancho del propio panel (container queries), no el de la
+ * ventana: el espacio disponible depende de si el menu lateral esta visible, y
+ * una media query por ancho de ventana hacia desbordar el panel a 1280 px.
+ */
+.filtros {
+  container-type: inline-size;
+}
+
+@media (min-width: 768px) {
+  .filtros {
+    padding: 1.25rem;
+  }
+
+  .alternar {
+    display: none;
+  }
+
+  .cuerpo {
+    display: grid;
+  }
+
+  .acciones .btn {
+    width: auto;
+  }
+}
+
+/* Panel mediano: dos filas.
+   Proveedor (2) | Estado | Limpiar
+   Rango inicio (2)      | Rango vencimiento (2) */
+@container (min-width: 40rem) {
+  .cuerpo {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    align-items: end;
+  }
+
+  .proveedor,
+  .rango-inicio,
+  .rango-vencimiento {
+    grid-column: span 2;
+  }
+
+  /* Limpiar ocupa el hueco a la derecha de Estado en la primera fila. En el
+     orden de tabulacion sigue siendo el ultimo, despues de todos los campos. */
+  .acciones {
+    grid-column: 4;
+    grid-row: 1;
+    justify-content: flex-end;
+  }
+}
+
+/* Panel ancho: todo en una fila para que la tabla quede lo mas arriba posible. */
+@container (min-width: 68rem) {
+  .cuerpo {
+    grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.8fr) minmax(0, 1.5fr) minmax(0, 1.5fr) auto;
+  }
+
+  .proveedor,
+  .rango-inicio,
+  .rango-vencimiento,
+  .acciones {
+    grid-column: auto;
+    grid-row: auto;
+  }
+}
