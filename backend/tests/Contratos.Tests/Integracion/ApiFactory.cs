@@ -1,3 +1,5 @@
+using System.Net.Http.Json;
+using System.Text.Json;
 using Contratos.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
@@ -85,7 +87,44 @@ public class ApiFactory : WebApplicationFactory<Program>, IAsyncLifetime
         });
     }
 
-    public async Task InitializeAsync() => await _conexion.OpenAsync();
+    public async Task InitializeAsync()
+    {
+        await _conexion.OpenAsync();
+
+        // Acceder a Services construye el host y crea el esquema.
+        using var scope = Services.CreateScope();
+        var contexto = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        await SembrarDatosAsync(contexto);
+    }
+
+    /// <summary>Punto de extension para que una factory derivada cargue datos.</summary>
+    protected virtual Task SembrarDatosAsync(AppDbContext contexto) => Task.CompletedTask;
+
+    /// <summary>Ejecuta una accion sobre el contexto de la base de pruebas.</summary>
+    public async Task ConContextoAsync(Func<AppDbContext, Task> accion)
+    {
+        using var scope = Services.CreateScope();
+        var contexto = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        await accion(contexto);
+    }
+
+    /// <summary>Devuelve un cliente ya autenticado como administrador.</summary>
+    public async Task<HttpClient> CrearClienteAutenticadoAsync()
+    {
+        var cliente = CreateClient();
+
+        var respuesta = await cliente.PostAsJsonAsync("/api/auth/login",
+            new { username = AdminUsername, password = AdminPassword });
+        respuesta.EnsureSuccessStatusCode();
+
+        using var json = JsonDocument.Parse(await respuesta.Content.ReadAsStringAsync());
+        var token = json.RootElement.GetProperty("token").GetString();
+
+        cliente.DefaultRequestHeaders.Authorization =
+            new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+
+        return cliente;
+    }
 
     async Task IAsyncLifetime.DisposeAsync() => await _conexion.DisposeAsync();
 }

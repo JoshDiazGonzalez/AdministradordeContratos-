@@ -1,6 +1,11 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
+    <!-- Los tests inspeccionan el SQL generado por el repositorio. -->
+    <InternalsVisibleTo Include="Contratos.Tests" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\Contratos.Application\Contratos.Application.csproj" />
     <ProjectReference Include="..\Contratos.Domain\Contratos.Domain.csproj" />
   </ItemGroup>

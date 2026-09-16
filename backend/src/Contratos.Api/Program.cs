@@ -9,7 +9,14 @@ var builder = WebApplication.CreateBuilder(args);
 // usando el separador "__" (ej. ConnectionStrings__DefaultConnection).
 builder.Configuration.AddEnvironmentVariables();
 
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        // Los estados viajan como texto ("PorVencer"), no como numero: el cliente
+        // no deberia depender del valor ordinal del enum.
+        options.JsonSerializerOptions.Converters.Add(
+            new System.Text.Json.Serialization.JsonStringEnumConverter());
+    });
 builder.Services.AddSwaggerConAutorizacion();
 
 // Acceso a datos, autenticacion y servicios de aplicacion.

@@ -1,4 +1,5 @@
 using Contratos.Application.Auth;
+using Contratos.Application.Contratos;
 using Contratos.Domain.Services;
 using Contratos.Infrastructure.Auth;
 using Contratos.Infrastructure.Persistence;
@@ -83,6 +84,10 @@ public static class DependencyInjection
         services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
         services.AddScoped<IUsuarioRepository, UsuarioRepository>();
         services.AddScoped<IAuthService, AuthService>();
+
+        // Contratos.
+        services.AddScoped<IContratoRepository, ContratoRepository>();
+        services.AddScoped<IContratoService, ContratoService>();
         services.AddScoped<DatabaseSeeder>();
 
         // Registra todos los AbstractValidator<T> de la capa de aplicacion.
