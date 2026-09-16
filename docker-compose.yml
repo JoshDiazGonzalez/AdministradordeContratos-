@@ -1,0 +1,80 @@
+# Administracion y Control de Vigencia de Contratos
+#
+#   cp .env.example .env     # completar Jwt__Secret, Seed__AdminPassword y POSTGRES_PASSWORD
+#   docker compose up --build
+#
+# Aplicacion: http://localhost:8080 (FRONTEND_PORT)
+#
+# Por defecto la API usa el PostgreSQL de este compose. Para usar Supabase,
+# defina DOCKER_DB_CONNECTION en .env con la cadena del session pooler y
+# DOCKER_APPLY_MIGRATIONS=false (el servicio db queda sin uso).
+#
+# Los valores se leen del .env de la raiz. ConnectionStrings__DefaultConnection
+# de ese archivo NO se usa aqui: es la conexion para ejecutar la API fuera de Docker.
+
+name: contratos
+
+services:
+  db:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: contratos
+      POSTGRES_USER: contratos
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Defina POSTGRES_PASSWORD en .env}
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    # Sin puertos publicados: solo la API accede a la base, por la red interna.
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U contratos -d contratos"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  api:
+    build:
+      context: ./backend
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ConnectionStrings__DefaultConnection: ${DOCKER_DB_CONNECTION:-Host=db;Port=5432;Database=contratos;Username=contratos;Password=${POSTGRES_PASSWORD}}
+      Database__ApplyMigrationsOnStartup: ${DOCKER_APPLY_MIGRATIONS:-true}
+      Jwt__Secret: ${Jwt__Secret:?Defina Jwt__Secret en .env (minimo 32 caracteres)}
+      Jwt__Issuer: ${Jwt__Issuer:-ContratosApi}
+      Jwt__Audience: ${Jwt__Audience:-ContratosApp}
+      Jwt__ExpirationMinutes: ${Jwt__ExpirationMinutes:-60}
+      Seed__AdminUsername: ${Seed__AdminUsername:-admin}
+      Seed__AdminPassword: ${Seed__AdminPassword:?Defina Seed__AdminPassword en .env}
+      Seed__AdminFullName: ${Seed__AdminFullName:-Administrador}
+      Seed__DatosDemo: ${Seed__DatosDemo:-false}
+      Storage__Provider: ${Storage__Provider:-Local}
+      Storage__MaxFileSizeBytes: ${Storage__MaxFileSizeBytes:-10485760}
+      Supabase__Url: ${Supabase__Url:-}
+      Supabase__ServiceRoleKey: ${Supabase__ServiceRoleKey:-}
+      Supabase__StorageBucket: ${Supabase__StorageBucket:-contracts}
+      # El navegador llama a la API a traves de nginx (mismo origen); CORS solo
+      # aplica si otro origen consume la API directamente.
+      Cors__FrontendUrl: http://localhost:${FRONTEND_PORT:-8080}
+    volumes:
+      # Documentos subidos con Storage__Provider=Local.
+      - api-storage:/app/storage
+    # Sin puertos publicados: se accede por el proxy /api del frontend.
+
+  web:
+    build:
+      context: ./frontend
+    restart: unless-stopped
+    depends_on:
+      api:
+        condition: service_healthy
+    environment:
+      API_UPSTREAM: http://api:8080
+    ports:
+      - "${FRONTEND_PORT:-8080}:8080"
+
+volumes:
+  db-data:
+  api-storage:

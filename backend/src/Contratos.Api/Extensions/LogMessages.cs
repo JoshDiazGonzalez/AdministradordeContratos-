@@ -24,4 +24,10 @@ public static partial class LogMessages
         Message = "Sin PostgreSQL configurado: se usa la base local de desarrollo en {Ruta}. " +
                   "Defina ConnectionStrings__DefaultConnection para conectar con Supabase.")]
     public static partial void BaseLocalEnUso(ILogger logger, string ruta);
+
+    [LoggerMessage(
+        EventId = 1003,
+        Level = LogLevel.Information,
+        Message = "Esquema de base de datos actualizado con las migraciones pendientes.")]
+    public static partial void MigracionesAplicadas(ILogger logger);
 }

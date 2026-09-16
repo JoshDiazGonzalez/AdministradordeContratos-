@@ -1,0 +1,13 @@
+**/bin/
+**/obj/
+**/TestResults/
+**/*.user
+**/*.db
+**/*.db-*
+**/storage/
+**/.env
+**/appsettings.*.local.json
+tests/
+.vs/
+Dockerfile
+.dockerignore

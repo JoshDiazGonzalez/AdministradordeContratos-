@@ -1,0 +1,58 @@
+# Plantilla de nginx. Al arrancar el contenedor, ${API_UPSTREAM} se sustituye
+# por su valor (envsubst solo reemplaza variables definidas en el entorno, las
+# de nginx como $uri se conservan).
+
+server {
+    listen 8080;
+    server_name _;
+    root /usr/share/nginx/html;
+
+    server_tokens off;
+
+    # Mismo limite que la API (documento de 10 MB mas los campos del formulario).
+    client_max_body_size 12m;
+
+    # Las cabeceras de seguridad se declaran en cada location de la aplicacion y
+    # no aqui: add_header de server se hereda en /api y duplicaria las que ya
+    # envia la API.
+
+    gzip on;
+    gzip_types text/css application/javascript application/json image/svg+xml;
+    gzip_min_length 1024;
+
+    # ---- API ------------------------------------------------------------------
+    # ^~ evita que la location de estaticos (una regex) capture rutas de la API
+    # que terminen en .js o .css.
+    location ^~ /api/ {
+        proxy_pass ${API_UPSTREAM};
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+
+        # La subida del documento llega entera a la API, sin almacenarla en disco.
+        proxy_request_buffering off;
+        proxy_read_timeout 60s;
+    }
+
+    # ---- Aplicacion Angular ---------------------------------------------------
+    # JS, CSS y fuentes salen del build con hash en el nombre y no cambian nunca:
+    # cache larga. (favicon y demas archivos de public/ no llevan hash.)
+    location ~* \.(?:js|css|woff2?)$ {
+        try_files $uri =404;
+        add_header Cache-Control "public, max-age=31536000, immutable";
+        add_header X-Content-Type-Options "nosniff" always;
+        add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+    }
+
+    # Rutas del cliente (/contratos/123): se entrega index.html y resuelve Angular.
+    # index.html sin cache para que un despliegue nuevo se vea al recargar.
+    location / {
+        try_files $uri $uri/ /index.html;
+        add_header Cache-Control "no-cache";
+        add_header X-Content-Type-Options "nosniff" always;
+        add_header X-Frame-Options "SAMEORIGIN" always;
+        add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+    }
+}

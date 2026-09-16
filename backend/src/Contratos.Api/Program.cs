@@ -4,6 +4,7 @@ using Contratos.Api.Middleware;
 using Contratos.Infrastructure;
 using Contratos.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Localization;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -136,6 +137,16 @@ using (var scope = app.Services.CreateScope())
         await contexto.Database.EnsureCreatedAsync();
 
         LogMessages.BaseLocalEnUso(app.Logger, proveedor.RutaBaseLocal!);
+    }
+    else if (app.Configuration.GetValue<bool>("Database:ApplyMigrationsOnStartup"))
+    {
+        // Base PostgreSQL propia (Docker Compose). MigrateAsync es idempotente:
+        // solo aplica las migraciones pendientes. En una base vacia EF registra un
+        // error al consultar la tabla de historial antes de crearla; es esperado.
+        var contexto = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        await contexto.Database.MigrateAsync();
+
+        LogMessages.MigracionesAplicadas(app.Logger);
     }
 
     var seeder = scope.ServiceProvider.GetRequiredService<DatabaseSeeder>();

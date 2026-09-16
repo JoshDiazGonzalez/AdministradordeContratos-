@@ -19,4 +19,11 @@ public class DatabaseOptions
 
     /// <summary>Registra los parametros de las consultas en el log. Solo para desarrollo.</summary>
     public bool EnableSensitiveDataLogging { get; set; }
+
+    /// <summary>
+    /// Aplica las migraciones pendientes al arrancar. Pensado para la base
+    /// PostgreSQL efimera de Docker Compose; contra Supabase las migraciones se
+    /// aplican de forma controlada y esta opcion queda desactivada.
+    /// </summary>
+    public bool ApplyMigrationsOnStartup { get; set; }
 }
