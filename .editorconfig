@@ -22,3 +22,11 @@ csharp_style_var_for_built_in_types = false:suggestion
 dotnet_sort_system_directives_first = true
 dotnet_style_prefer_is_null_check_over_reference_equality_method = true:suggestion
 dotnet_diagnostic.CA2007.severity = none
+
+# Las migraciones las genera EF Core: editarlas a mano se pierde al regenerarlas,
+# asi que se excluyen de las reglas de estilo.
+[**/Migrations/*.cs]
+generated_code = true
+dotnet_diagnostic.IDE0161.severity = none
+dotnet_diagnostic.CA1861.severity = none
+dotnet_analyzer_diagnostic.severity = none

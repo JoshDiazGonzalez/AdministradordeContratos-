@@ -1,6 +1,9 @@
+using Contratos.Application.Auth;
 using Contratos.Domain.Services;
+using Contratos.Infrastructure.Auth;
 using Contratos.Infrastructure.Persistence;
 using Contratos.Infrastructure.Services;
+using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -60,6 +63,30 @@ public static class DependencyInjection
 
         // Reloj del negocio (America/Guayaquil). Singleton: no tiene estado mutable.
         services.AddSingleton<IDateTimeProvider, DateTimeProvider>();
+
+        // Autenticacion.
+        services.AddOptions<JwtOptions>()
+            .Bind(configuration.GetSection(JwtOptions.SectionName))
+            .Validate(
+                jwt => !string.IsNullOrWhiteSpace(jwt.Secret)
+                       && jwt.Secret.Length >= JwtOptions.LongitudMinimaSecret,
+                $"Jwt__Secret es obligatorio y debe tener al menos " +
+                $"{JwtOptions.LongitudMinimaSecret} caracteres.")
+            .Validate(
+                jwt => jwt.ExpirationMinutes > 0,
+                "Jwt__ExpirationMinutes debe ser mayor que 0.")
+            .ValidateOnStart();
+
+        services.Configure<SeedOptions>(configuration.GetSection(SeedOptions.SectionName));
+
+        services.AddSingleton<IPasswordHasher, BCryptPasswordHasher>();
+        services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
+        services.AddScoped<IUsuarioRepository, UsuarioRepository>();
+        services.AddScoped<IAuthService, AuthService>();
+        services.AddScoped<DatabaseSeeder>();
+
+        // Registra todos los AbstractValidator<T> de la capa de aplicacion.
+        services.AddValidatorsFromAssemblyContaining<LoginRequest>();
 
         return services;
     }

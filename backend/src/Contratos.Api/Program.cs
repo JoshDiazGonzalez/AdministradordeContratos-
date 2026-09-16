@@ -1,5 +1,7 @@
 using Contratos.Api.Extensions;
+using Contratos.Api.Middleware;
 using Contratos.Infrastructure;
+using Contratos.Infrastructure.Persistence;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -8,19 +10,11 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Configuration.AddEnvironmentVariables();
 
 builder.Services.AddControllers();
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(options =>
-{
-    options.SwaggerDoc("v1", new()
-    {
-        Title = "API de Administracion de Contratos",
-        Version = "v1",
-        Description = "Administracion y control de vigencia de contratos de proveedores."
-    });
-});
+builder.Services.AddSwaggerConAutorizacion();
 
-// Acceso a datos (EF Core + PostgreSQL/Supabase).
+// Acceso a datos, autenticacion y servicios de aplicacion.
 builder.Services.AddInfrastructure(builder.Configuration);
+builder.Services.AddAutenticacionJwt(builder.Configuration);
 
 // CORS restringido al origen del frontend (configurable por entorno).
 var frontendUrl = builder.Configuration["Cors:FrontendUrl"] ?? "http://localhost:4200";
@@ -39,6 +33,16 @@ var app = builder.Build();
 var destinoBaseDatos = builder.Configuration.GetConnectionString("DefaultConnection").Ofuscar();
 LogMessages.ConexionConfigurada(app.Logger, destinoBaseDatos);
 
+// Crea el usuario administrador inicial si no existe. Es idempotente.
+using (var scope = app.Services.CreateScope())
+{
+    var seeder = scope.ServiceProvider.GetRequiredService<DatabaseSeeder>();
+    await seeder.SembrarAsync();
+}
+
+// Primero en la cadena: captura cualquier excepcion de los middlewares siguientes.
+app.UseMiddleware<ExceptionHandlingMiddleware>();
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -46,7 +50,12 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseCors("Frontend");
+
+// El orden importa: primero se identifica quien es (authentication),
+// despues si puede hacerlo (authorization).
+app.UseAuthentication();
 app.UseAuthorization();
+
 app.MapControllers();
 
 // Endpoint de diagnostico para verificar que la API responde (y para el healthcheck de Docker).
