@@ -1,0 +1,4 @@
+<span role="status" class="contenedor">
+  <span class="circulo" [class.sm]="tamano() === 'sm'" aria-hidden="true"></span>
+  <span [class.sr-only]="!mostrarTexto()">{{ etiqueta() }}</span>
+</span>

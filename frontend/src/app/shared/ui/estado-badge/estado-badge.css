@@ -1,0 +1,54 @@
+:host {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.125rem 0.625rem;
+  border-radius: 999px;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  line-height: 1.5;
+  white-space: nowrap;
+}
+
+.punto {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 999px;
+  background: currentColor;
+}
+
+:host(.badge-Activo) {
+  background: var(--color-estado-activo-bg);
+  color: var(--color-estado-activo-text);
+}
+
+:host(.badge-Activo) .punto {
+  background: var(--color-estado-activo-dot);
+}
+
+:host(.badge-PorVencer) {
+  background: var(--color-estado-por-vencer-bg);
+  color: var(--color-estado-por-vencer-text);
+}
+
+:host(.badge-PorVencer) .punto {
+  background: var(--color-estado-por-vencer-dot);
+}
+
+:host(.badge-Vencido) {
+  background: var(--color-estado-vencido-bg);
+  color: var(--color-estado-vencido-text);
+}
+
+:host(.badge-Vencido) .punto {
+  background: var(--color-estado-vencido-dot);
+}
+
+:host(.badge-Inactivo) {
+  background: var(--color-estado-inactivo-bg);
+  color: var(--color-estado-inactivo-text);
+}
+
+:host(.badge-Inactivo) .punto {
+  background: var(--color-estado-inactivo-dot);
+}

@@ -1,0 +1,180 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+}
+
+/* ---- Enlace para saltar la navegacion con teclado -------------------------- */
+.saltar-contenido {
+  position: absolute;
+  top: 0.5rem;
+  left: 0.5rem;
+  z-index: 50;
+  padding: 0.5rem 0.75rem;
+  background: var(--color-surface);
+  border-radius: var(--radius-control);
+  color: var(--color-primary-strong);
+  transform: translateY(-200%);
+}
+
+.saltar-contenido:focus {
+  transform: none;
+}
+
+/* ---- Barra superior --------------------------------------------------------
+ * La franja verde superior es el unico uso "decorativo" del color de marca:
+ * identifica el sistema sin teñir la pantalla.
+ */
+.barra {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  background: var(--color-surface);
+  border-top: 3px solid var(--color-primary);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.barra-interior {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  height: 3.5rem;
+  padding: 0 1rem;
+}
+
+.marca {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.625rem;
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--color-text-primary);
+  text-decoration: none;
+}
+
+.marca img {
+  flex-shrink: 0;
+  border-radius: 4px;
+}
+
+.boton-menu {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  margin-left: -0.5rem;
+  border: 0;
+  border-radius: var(--radius-control);
+  background: transparent;
+  color: var(--color-text-primary);
+  cursor: pointer;
+}
+
+.boton-menu:hover {
+  background: var(--color-background);
+}
+
+/* ---- Cuerpo ---------------------------------------------------------------- */
+.cuerpo {
+  display: flex;
+  flex: 1;
+}
+
+.contenido {
+  flex: 1;
+  min-width: 0;
+  padding: 1.5rem 1rem;
+}
+
+.contenido:focus {
+  outline: none;
+}
+
+/* ---- Navegacion lateral ------------------------------------------------------
+ * En movil es un panel desplegable bajo la barra; desde 768px es fija.
+ */
+.lateral {
+  display: none;
+  position: fixed;
+  inset: calc(3.5rem + 4px) 0 auto 0;
+  z-index: 20;
+  padding: 0.5rem;
+  background: var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.lateral.abierto {
+  display: block;
+}
+
+.lateral ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.enlace {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-height: 2.75rem;
+  padding: 0 0.875rem;
+  border-radius: var(--radius-control);
+  font-size: 0.9375rem;
+  color: var(--color-text-secondary);
+  text-decoration: none;
+}
+
+.enlace:hover {
+  background: var(--color-background);
+  color: var(--color-text-primary);
+}
+
+/*
+ * Seccion activa: fondo verde suave, texto verde oscuro legible (5.47:1) y una
+ * barra lateral en el verde de marca. Tres senales, no solo color.
+ */
+.enlace.activo {
+  background: var(--color-primary-light);
+  color: var(--color-primary-strong);
+  font-weight: 500;
+}
+
+.enlace.activo::before {
+  content: '';
+  position: absolute;
+  top: 0.5rem;
+  bottom: 0.5rem;
+  left: 0;
+  width: 3px;
+  border-radius: 0 3px 3px 0;
+  background: var(--color-primary);
+}
+
+@media (min-width: 768px) {
+  .boton-menu {
+    display: none;
+  }
+
+  .barra-interior {
+    padding: 0 1.5rem;
+  }
+
+  .lateral {
+    display: block;
+    position: sticky;
+    top: calc(3.5rem + 4px);
+    align-self: flex-start;
+    width: 15rem;
+    height: calc(100dvh - 3.5rem - 4px);
+    padding: 1rem 0.75rem;
+    border-bottom: 0;
+    border-right: 1px solid var(--color-border);
+  }
+
+  .contenido {
+    padding: 2rem;
+  }
+}

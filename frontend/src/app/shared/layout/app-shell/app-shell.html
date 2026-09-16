@@ -1,24 +1,77 @@
-<header>
-  <a routerLink="/contratos">Administración de Contratos</a>
+<a class="saltar-contenido" href="#contenido">Saltar al contenido</a>
 
-  <nav aria-label="Navegación principal">
+<header class="barra">
+  <div class="barra-interior">
+    <button
+      type="button"
+      class="boton-menu"
+      [attr.aria-expanded]="menuAbierto()"
+      aria-controls="navegacion-principal"
+      (click)="alternarMenu()"
+    >
+      <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
+        @if (menuAbierto()) {
+          <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+        } @else {
+          <path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+        }
+      </svg>
+      <span class="sr-only">{{ menuAbierto() ? 'Cerrar menú' : 'Abrir menú' }}</span>
+    </button>
+
+    <a routerLink="/contratos" class="marca">
+      <img src="favicon.ico" alt="" width="28" height="28" />
+      <span>Administración de Contratos</span>
+    </a>
+  </div>
+</header>
+
+<div class="cuerpo">
+  <nav
+    id="navegacion-principal"
+    class="lateral"
+    [class.abierto]="menuAbierto()"
+    aria-label="Navegación principal"
+  >
     <ul>
-      @for (enlace of enlaces; track enlace.ruta) {
+      @for (enlace of enlaces; track enlace.seccion) {
         <li>
           <a
             [routerLink]="enlace.ruta"
-            routerLinkActive="activo"
-            [routerLinkActiveOptions]="{ exact: true }"
-            ariaCurrentWhenActive="page"
+            class="enlace"
+            [class.activo]="seccionActiva() === enlace.seccion"
+            [attr.aria-current]="seccionActiva() === enlace.seccion ? 'page' : null"
           >
-            {{ enlace.etiqueta }}
+            <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+              @switch (enlace.seccion) {
+                @case ('dashboard') {
+                  <path
+                    d="M4 4h7v7H4zM13 4h7v4h-7zM13 10h7v10h-7zM4 13h7v7H4z"
+                    fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"
+                  />
+                }
+                @case ('contratos') {
+                  <path
+                    d="M7 3h7l5 5v13H7zM14 3v5h5M10 13h6M10 17h6"
+                    fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"
+                  />
+                }
+                @case ('nuevo') {
+                  <path
+                    d="M12 5v14M5 12h14"
+                    fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
+                  />
+                }
+              }
+            </svg>
+            <span>{{ enlace.etiqueta }}</span>
           </a>
         </li>
       }
     </ul>
   </nav>
-</header>
 
-<main>
-  <router-outlet />
-</main>
+  <main id="contenido" class="contenido" tabindex="-1">
+    <router-outlet />
+  </main>
+</div>

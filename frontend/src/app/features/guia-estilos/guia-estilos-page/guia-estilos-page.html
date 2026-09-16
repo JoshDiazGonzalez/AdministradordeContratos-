@@ -1,0 +1,91 @@
+<header class="page-header">
+  <div>
+    <h1 class="page-title">Guía de estilos</h1>
+    <p class="page-subtitle">Componentes compartidos. Solo visible en desarrollo.</p>
+  </div>
+</header>
+
+<div class="grid gap-6">
+  <section class="card p-6">
+    <h2 class="mt-0 mb-4 text-lg font-medium">Botones</h2>
+    <div class="flex flex-wrap items-center gap-3">
+      <button type="button" class="btn btn-primary">Guardar contrato</button>
+      <button type="button" class="btn btn-secondary">Cancelar</button>
+      <button type="button" class="btn btn-danger">Desactivar</button>
+      <button type="button" class="btn btn-link">Ver documento</button>
+      <button type="button" class="btn btn-primary" disabled>Guardando</button>
+    </div>
+  </section>
+
+  <section class="card p-6">
+    <h2 class="mt-0 mb-4 text-lg font-medium">Estados de contrato</h2>
+    <div class="flex flex-wrap gap-3">
+      @for (estado of estados; track estado) {
+        <app-estado-badge [estado]="estado" />
+      }
+    </div>
+  </section>
+
+  <section class="card p-6">
+    <h2 class="mt-0 mb-4 text-lg font-medium">Campos</h2>
+    <div class="grid max-w-xl gap-5">
+      <div>
+        <label class="label" for="ge-proveedor">Nombre del proveedor</label>
+        <input id="ge-proveedor" class="input" placeholder="Ej. Proveedor Alpha" />
+        <p class="field-hint">Tal como figura en el contrato.</p>
+      </div>
+      <div>
+        <label class="label" for="ge-monto">Monto del contrato</label>
+        <input
+          id="ge-monto"
+          class="input"
+          value="0"
+          aria-invalid="true"
+          aria-describedby="ge-monto-error"
+        />
+        <p id="ge-monto-error" class="field-error">El monto debe ser mayor que 0.</p>
+      </div>
+      <div>
+        <label class="label" for="ge-deshabilitado">Campo deshabilitado</label>
+        <input id="ge-deshabilitado" class="input" value="No editable" disabled />
+      </div>
+    </div>
+  </section>
+
+  <section class="card p-6">
+    <h2 class="mt-0 mb-4 text-lg font-medium">Mensajes y carga</h2>
+    <div class="grid max-w-xl gap-3">
+      <p class="alert alert-success m-0" role="status">Contrato guardado.</p>
+      <p class="alert alert-error m-0" role="alert">
+        No se pudo guardar el contrato. Revise su conexión e inténtelo de nuevo.
+      </p>
+      <app-spinner etiqueta="Cargando contratos" [mostrarTexto]="true" />
+    </div>
+  </section>
+
+  <section class="card overflow-hidden">
+    <h2 class="m-0 px-6 pt-6 pb-4 text-lg font-medium">Tabla</h2>
+    <div class="overflow-x-auto">
+      <table class="table">
+        <thead>
+          <tr>
+            <th scope="col">Proveedor</th>
+            <th scope="col" class="numeric">Monto</th>
+            <th scope="col">Vencimiento</th>
+            <th scope="col">Estado</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (fila of filasEjemplo; track fila.proveedor) {
+            <tr>
+              <td>{{ fila.proveedor }}</td>
+              <td class="numeric">{{ fila.monto | currency: 'USD' }}</td>
+              <td>{{ fila.vence }}</td>
+              <td><app-estado-badge [estado]="fila.estado" /></td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </section>
+</div>

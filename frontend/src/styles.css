@@ -1,3 +1,361 @@
-/* You can add global styles to this file, and also import other style files */
-
 @import 'tailwindcss';
+
+/*
+ * ============================================================================
+ * Identidad visual
+ * ============================================================================
+ *
+ * Unica fuente de verdad de colores y tipografia. Tailwind v4 convierte cada
+ * token de @theme en una variable CSS (var(--color-primary)) y en utilidades
+ * (bg-primary, text-primary-strong...), asi que no hay dos listas que mantener.
+ *
+ * Contraste medido con la formula WCAG 2.1:
+ *   blanco sobre primary .......... 3.77:1  (ver nota en --color-primary)
+ *   primary-strong sobre blanco ... 5.47:1  AA
+ *   text-secondary sobre fondo .... 5.08:1  AA
+ *   border-control sobre blanco ... 3.18:1  cumple 3:1 para controles
+ */
+@theme {
+  --font-sans: 'Roboto', Arial, sans-serif;
+
+  /*
+   * Color de marca. Se usa en botones primarios, indicadores de navegacion,
+   * foco y elementos de marca.
+   *
+   * El texto blanco sobre este verde da 3.77:1: suficiente para texto grande y
+   * para componentes de interfaz, pero por debajo del 4.5:1 que pide WCAG AA
+   * para texto normal. Se mantiene en los botones porque la identidad lo exige.
+   * Nunca se usa este tono para texto verde: para eso existe primary-strong.
+   */
+  --color-primary: #009845;
+  --color-primary-hover: #007a38;
+  --color-primary-strong: #007a38;
+  --color-primary-light: #e6f5ed;
+
+  --color-background: #f0f0f0;
+  --color-surface: #ffffff;
+
+  --color-text-primary: #1f2937;
+  /* #6b7280 da 4.24:1 sobre el fondo gris; #5f6672 cumple en ambas superficies. */
+  --color-text-secondary: #5f6672;
+
+  /* Separadores decorativos (cards, tabla): no requieren contraste minimo. */
+  --color-border: #e5e7eb;
+  /* Bordes de campos: deben distinguirse a 3:1 para saber donde escribir. */
+  --color-border-control: #8a919c;
+
+  --color-success: #009845;
+  --color-warning: #f59e0b;
+  --color-danger: #dc2626;
+  --color-danger-strong: #b91c1c;
+  --color-disabled: #9ca3af;
+
+  /* Estados de contrato: fondo suave + texto oscuro, todos por encima de 4.5:1. */
+  --color-estado-activo-bg: #e6f5ed;
+  --color-estado-activo-text: #007a38;
+  --color-estado-activo-dot: #009845;
+
+  --color-estado-por-vencer-bg: #fef3c7;
+  --color-estado-por-vencer-text: #92400e;
+  --color-estado-por-vencer-dot: #f59e0b;
+
+  --color-estado-vencido-bg: #fee2e2;
+  --color-estado-vencido-text: #991b1b;
+  --color-estado-vencido-dot: #dc2626;
+
+  --color-estado-inactivo-bg: #f3f4f6;
+  --color-estado-inactivo-text: #4b5563;
+  --color-estado-inactivo-dot: #9ca3af;
+
+  --radius-control: 6px;
+  --radius-card: 8px;
+}
+
+/* ============================================================================
+ * Base
+ * ========================================================================== */
+@layer base {
+  html,
+  body {
+    font-family: var(--font-sans);
+    background-color: var(--color-background);
+    color: var(--color-text-primary);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body {
+    margin: 0;
+    font-size: 0.9375rem;
+    line-height: 1.5;
+  }
+
+  h1,
+  h2,
+  h3 {
+    color: var(--color-text-primary);
+    line-height: 1.25;
+  }
+
+  /*
+   * Foco visible para quien navega con teclado. :focus-visible evita mostrar el
+   * anillo al hacer clic con el raton, pero nunca se elimina para el teclado.
+   */
+  :focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+/* ============================================================================
+ * Componentes
+ *
+ * Clases compartidas por todas las pantallas para que un boton o un campo se
+ * vean igual en el login, el formulario y el detalle.
+ * ========================================================================== */
+@layer components {
+  /* ---- Encabezado de pagina ---------------------------------------------- */
+  .page-header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .page-title {
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: 500;
+  }
+
+  .page-subtitle {
+    margin: 0.25rem 0 0;
+    color: var(--color-text-secondary);
+  }
+
+  /* ---- Tarjetas ---------------------------------------------------------- */
+  .card {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-card);
+  }
+
+  /* ---- Botones ----------------------------------------------------------- */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    min-height: 2.5rem;
+    padding: 0 1rem;
+    border: 1px solid transparent;
+    border-radius: var(--radius-control);
+    font-family: inherit;
+    font-size: 0.9375rem;
+    font-weight: 500;
+    line-height: 1;
+    white-space: nowrap;
+    cursor: pointer;
+    transition:
+      background-color 120ms ease,
+      border-color 120ms ease,
+      color 120ms ease;
+  }
+
+  .btn:disabled {
+    cursor: not-allowed;
+  }
+
+  .btn-primary {
+    background: var(--color-primary);
+    color: #ffffff;
+  }
+
+  .btn-primary:hover:not(:disabled) {
+    background: var(--color-primary-hover);
+  }
+
+  .btn-primary:disabled {
+    background: var(--color-disabled);
+  }
+
+  .btn-secondary {
+    background: var(--color-surface);
+    border-color: var(--color-border-control);
+    color: var(--color-text-primary);
+  }
+
+  .btn-secondary:hover:not(:disabled) {
+    background: var(--color-background);
+  }
+
+  .btn-secondary:disabled {
+    color: var(--color-disabled);
+    border-color: var(--color-border);
+  }
+
+  .btn-danger {
+    background: var(--color-surface);
+    border-color: var(--color-danger-strong);
+    color: var(--color-danger-strong);
+  }
+
+  .btn-danger:hover:not(:disabled) {
+    background: #fef2f2;
+  }
+
+  /* Accion sin borde para acciones secundarias dentro de tablas. */
+  .btn-link {
+    min-height: auto;
+    padding: 0.25rem 0.375rem;
+    background: transparent;
+    color: var(--color-primary-strong);
+  }
+
+  .btn-link:hover:not(:disabled) {
+    text-decoration: underline;
+  }
+
+  /* ---- Formularios ------------------------------------------------------- */
+  .label {
+    display: block;
+    margin-bottom: 0.375rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--color-text-primary);
+  }
+
+  .input {
+    display: block;
+    width: 100%;
+    min-height: 2.5rem;
+    padding: 0.5rem 0.75rem;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border-control);
+    border-radius: var(--radius-control);
+    font-family: inherit;
+    font-size: 0.9375rem;
+    color: var(--color-text-primary);
+    transition:
+      border-color 120ms ease,
+      box-shadow 120ms ease;
+  }
+
+  .input::placeholder {
+    color: var(--color-text-secondary);
+  }
+
+  .input:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px rgb(0 152 69 / 0.18);
+  }
+
+  .input:disabled {
+    background: var(--color-background);
+    color: var(--color-text-secondary);
+    cursor: not-allowed;
+  }
+
+  /* Campo con error: borde rojo y anillo rojo al enfocar. */
+  .input[aria-invalid='true'] {
+    border-color: var(--color-danger-strong);
+  }
+
+  .input[aria-invalid='true']:focus {
+    box-shadow: 0 0 0 3px rgb(185 28 28 / 0.18);
+  }
+
+  .field-hint {
+    margin-top: 0.375rem;
+    font-size: 0.8125rem;
+    color: var(--color-text-secondary);
+  }
+
+  .field-error {
+    margin-top: 0.375rem;
+    font-size: 0.8125rem;
+    color: var(--color-danger-strong);
+  }
+
+  /* ---- Mensajes ---------------------------------------------------------- */
+  .alert {
+    padding: 0.75rem 1rem;
+    border: 1px solid;
+    border-radius: var(--radius-control);
+    font-size: 0.875rem;
+  }
+
+  .alert-error {
+    background: #fef2f2;
+    border-color: #fecaca;
+    color: var(--color-danger-strong);
+  }
+
+  .alert-success {
+    background: var(--color-primary-light);
+    border-color: #b7e2c8;
+    color: var(--color-primary-strong);
+  }
+
+  /* ---- Tabla ------------------------------------------------------------- */
+  .table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.875rem;
+  }
+
+  .table th {
+    padding: 0.75rem 1rem;
+    background: #f7f8f9;
+    border-bottom: 1px solid var(--color-border);
+    font-weight: 500;
+    color: var(--color-text-secondary);
+    text-align: left;
+    white-space: nowrap;
+  }
+
+  .table td {
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--color-border);
+    vertical-align: middle;
+  }
+
+  .table tbody tr:last-child td {
+    border-bottom: none;
+  }
+
+  .table tbody tr:hover {
+    background: #fafbfa;
+  }
+
+  /* Cifras alineadas a la derecha y con digitos de ancho fijo para compararlas. */
+  .numeric {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* ---- Accesibilidad ----------------------------------------------------- */
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+}

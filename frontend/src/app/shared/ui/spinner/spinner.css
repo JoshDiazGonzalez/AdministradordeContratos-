@@ -1,0 +1,39 @@
+.contenedor {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--color-text-secondary);
+  font-size: 0.875rem;
+}
+
+.circulo {
+  width: 1.25rem;
+  height: 1.25rem;
+  border: 2px solid var(--color-border);
+  border-top-color: var(--color-primary);
+  border-radius: 999px;
+  animation: giro 700ms linear infinite;
+}
+
+.circulo.sm {
+  width: 1rem;
+  height: 1rem;
+}
+
+@keyframes giro {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/*
+ * Con movimiento reducido no se gira: un indicador estatico con el texto
+ * sigue comunicando que hay una espera.
+ */
+@media (prefers-reduced-motion: reduce) {
+  .circulo {
+    animation: none;
+    border-top-color: var(--color-primary);
+    border-right-color: var(--color-primary);
+  }
+}

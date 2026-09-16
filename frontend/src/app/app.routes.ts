@@ -48,6 +48,23 @@ export const routes: Routes = [
             (m) => m.ContratoFormPage,
           ),
       },
+      // Catalogo de componentes para revisar la identidad visual, solo en desarrollo.
+      // Se usa ngDevMode y no isDevMode(): el CLI reemplaza ngDevMode por false al
+      // compilar en produccion, el bundler elimina la rama y el chunk ni se genera.
+      // isDevMode() se evalua en ejecucion y dejaria el codigo publicado aunque
+      // la ruta fuese inalcanzable.
+      ...(typeof ngDevMode === 'undefined' || ngDevMode
+        ? [
+            {
+              path: 'guia-estilos',
+              title: `Guía de estilos | ${TITULO_APP}`,
+              loadComponent: () =>
+                import('./features/guia-estilos/guia-estilos-page/guia-estilos-page').then(
+                  (m) => m.GuiaEstilosPage,
+                ),
+            },
+          ]
+        : []),
       {
         path: 'contratos/:id',
         title: `Detalle del contrato | ${TITULO_APP}`,
