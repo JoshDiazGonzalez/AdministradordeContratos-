@@ -1,0 +1,24 @@
+<header>
+  <a routerLink="/contratos">Administración de Contratos</a>
+
+  <nav aria-label="Navegación principal">
+    <ul>
+      @for (enlace of enlaces; track enlace.ruta) {
+        <li>
+          <a
+            [routerLink]="enlace.ruta"
+            routerLinkActive="activo"
+            [routerLinkActiveOptions]="{ exact: true }"
+            ariaCurrentWhenActive="page"
+          >
+            {{ enlace.etiqueta }}
+          </a>
+        </li>
+      }
+    </ul>
+  </nav>
+</header>
+
+<main>
+  <router-outlet />
+</main>
