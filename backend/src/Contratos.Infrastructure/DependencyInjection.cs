@@ -1,4 +1,6 @@
+using Contratos.Domain.Services;
 using Contratos.Infrastructure.Persistence;
+using Contratos.Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -55,6 +57,9 @@ public static class DependencyInjection
                 builder.EnableSensitiveDataLogging();
             }
         });
+
+        // Reloj del negocio (America/Guayaquil). Singleton: no tiene estado mutable.
+        services.AddSingleton<IDateTimeProvider, DateTimeProvider>();
 
         return services;
     }

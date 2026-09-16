@@ -1,10 +1,10 @@
+using Contratos.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace Contratos.Infrastructure.Persistence;
 
 /// <summary>
 /// Contexto de EF Core de la aplicacion.
-/// Las entidades y sus configuraciones se agregan en la Fase 4.
 /// </summary>
 public class AppDbContext : DbContext
 {
@@ -12,6 +12,10 @@ public class AppDbContext : DbContext
         : base(options)
     {
     }
+
+    public DbSet<Contrato> Contratos => Set<Contrato>();
+
+    public DbSet<Usuario> Usuarios => Set<Usuario>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
