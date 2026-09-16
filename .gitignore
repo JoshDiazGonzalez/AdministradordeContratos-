@@ -57,3 +57,8 @@ uploads/
 # Se restauran con: npx skills install   (a partir de skills-lock.json)
 .agents/
 .claude/skills/
+
+# Base local de desarrollo (SQLite)
+*.db
+*.db-shm
+*.db-wal

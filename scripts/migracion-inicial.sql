@@ -101,14 +101,20 @@ END $EF$;
 DO $EF$
 BEGIN
     IF NOT EXISTS(SELECT 1 FROM public.__ef_migrations_history WHERE "migration_id" = '20260916022451_HabilitarRowLevelSecurity') THEN
-    REVOKE ALL ON public.contratos FROM anon, authenticated;
-    END IF;
-END $EF$;
-
-DO $EF$
-BEGIN
-    IF NOT EXISTS(SELECT 1 FROM public.__ef_migrations_history WHERE "migration_id" = '20260916022451_HabilitarRowLevelSecurity') THEN
-    REVOKE ALL ON public.usuarios FROM anon, authenticated;
+    DO $$
+    DECLARE
+        rol text;
+        tabla text;
+    BEGIN
+        FOREACH rol IN ARRAY ARRAY['anon', 'authenticated'] LOOP
+            IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = rol) THEN
+                FOREACH tabla IN ARRAY ARRAY['contratos', 'usuarios'] LOOP
+                    EXECUTE format(
+                        'REVOKE ALL ON public.%I FROM %I', tabla, rol);
+                END LOOP;
+            END IF;
+        END LOOP;
+    END $$;
     END IF;
 END $EF$;
 
@@ -133,7 +139,17 @@ END $EF$;
 DO $EF$
 BEGIN
     IF NOT EXISTS(SELECT 1 FROM public.__ef_migrations_history WHERE "migration_id" = '20260916022641_ProtegerHistorialDeMigraciones') THEN
-    REVOKE ALL ON public.__ef_migrations_history FROM anon, authenticated;
+    DO $$
+    DECLARE
+        rol text;
+    BEGIN
+        FOREACH rol IN ARRAY ARRAY['anon', 'authenticated'] LOOP
+            IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = rol) THEN
+                EXECUTE format(
+                    'REVOKE ALL ON public.__ef_migrations_history FROM %I', rol);
+            END IF;
+        END LOOP;
+    END $$;
     END IF;
 END $EF$;
 

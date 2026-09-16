@@ -13,4 +13,6 @@ public interface IContratoRepository
     Task<Contrato?> ObtenerPorIdAsync(Guid id, CancellationToken cancellationToken);
 
     Task<ContratoResumenDto> ResumirAsync(DateOnly hoy, CancellationToken cancellationToken);
+
+    Task AgregarAsync(Contrato contrato, CancellationToken cancellationToken);
 }

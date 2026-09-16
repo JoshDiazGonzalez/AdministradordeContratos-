@@ -37,6 +37,12 @@ public class ContratoRepository : IContratoRepository
         return new ResultadoPaginado<Contrato>(items, filtro.Page, filtro.PageSize, total);
     }
 
+    public async Task AgregarAsync(Contrato contrato, CancellationToken cancellationToken)
+    {
+        _context.Contratos.Add(contrato);
+        await _context.SaveChangesAsync(cancellationToken);
+    }
+
     public Task<Contrato?> ObtenerPorIdAsync(Guid id, CancellationToken cancellationToken) =>
         _context.Contratos
             .AsNoTracking()

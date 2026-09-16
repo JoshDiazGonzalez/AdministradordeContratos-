@@ -22,8 +22,22 @@ namespace Contratos.Infrastructure.Persistence.Migrations
         {
             migrationBuilder.Sql(
                 "ALTER TABLE public.__ef_migrations_history ENABLE ROW LEVEL SECURITY;");
-            migrationBuilder.Sql(
-                "REVOKE ALL ON public.__ef_migrations_history FROM anon, authenticated;");
+            // Los roles anon y authenticated solo existen en Supabase; se
+            // comprueba antes de revocar para que la migracion tambien funcione
+            // contra un PostgreSQL normal.
+            migrationBuilder.Sql("""
+                DO $$
+                DECLARE
+                    rol text;
+                BEGIN
+                    FOREACH rol IN ARRAY ARRAY['anon', 'authenticated'] LOOP
+                        IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = rol) THEN
+                            EXECUTE format(
+                                'REVOKE ALL ON public.__ef_migrations_history FROM %I', rol);
+                        END IF;
+                    END LOOP;
+                END $$;
+                """);
         }
 
         /// <inheritdoc />

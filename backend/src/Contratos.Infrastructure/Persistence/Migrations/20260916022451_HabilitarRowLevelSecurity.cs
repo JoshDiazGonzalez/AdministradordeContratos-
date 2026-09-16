@@ -28,8 +28,27 @@ namespace Contratos.Infrastructure.Persistence.Migrations
             // Defensa adicional: retirar cualquier permiso heredado por los roles
             // publicos, de modo que la tabla no sea alcanzable ni aunque se
             // habilite la Data API.
-            migrationBuilder.Sql("REVOKE ALL ON public.contratos FROM anon, authenticated;");
-            migrationBuilder.Sql("REVOKE ALL ON public.usuarios FROM anon, authenticated;");
+            //
+            // Los roles anon y authenticated solo existen en Supabase. Contra un
+            // PostgreSQL normal (desarrollo local, Docker, CI) no estan, y un
+            // REVOKE directo abortaria la migracion. Se comprueba antes de actuar
+            // para que el mismo historial sirva en ambos entornos.
+            migrationBuilder.Sql("""
+                DO $$
+                DECLARE
+                    rol text;
+                    tabla text;
+                BEGIN
+                    FOREACH rol IN ARRAY ARRAY['anon', 'authenticated'] LOOP
+                        IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = rol) THEN
+                            FOREACH tabla IN ARRAY ARRAY['contratos', 'usuarios'] LOOP
+                                EXECUTE format(
+                                    'REVOKE ALL ON public.%I FROM %I', tabla, rol);
+                            END LOOP;
+                        END IF;
+                    END LOOP;
+                END $$;
+                """);
         }
 
         /// <inheritdoc />
